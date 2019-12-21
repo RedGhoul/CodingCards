@@ -19,3 +19,9 @@ Technologies used:
 - MYSQL server : Used for data storage
 - .NET Core 2.2
 - ASP.NET MVC
+
+Hosted on AZURE using:
+
+A Managed Instance of MYSQL
+
+A Managed Instance of Azure Web Apps
