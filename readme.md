@@ -1,10 +1,10 @@
 ## Coding Cards
 
-[Visit Web Application](https://ccccards.azurewebsites.net/)
+[Visit Web Application](https://www.codinginterviewcards.com/)
 
-[Get Mobile Client - Android](https://ccccards.azurewebsites.net/)
+[Get Mobile Client - Android](https://www.codinginterviewcards.com/)
 
-[Get Mobile Client - IOS](https://ccccards.azurewebsites.net/)
+[Get Mobile Client - IOS](https://www.codinginterviewcards.com/)
 
 An easy to used flash card platform. To help you get ready for those super hard tech interviews.
 
