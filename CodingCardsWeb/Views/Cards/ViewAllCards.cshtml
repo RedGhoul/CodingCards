@@ -1,20 +1,22 @@
-﻿<div class="container">
+﻿
+<div class="container">
     <div class="row">
         <div class="col">
-            <h1>Card Index</h1>
+            <h1>All Cards</h1>
         </div>
         <div class="col-md-auto">
             <p>
-                <a asp-action="Create"  class="btn btn-primary">Create New Card</a>
+                <a asp-action="Create" class="btn btn-primary">Create New Card</a>
             </p>
         </div>
         <div class="col col-lg-2">
             <p>
-                <a asp-action="GetCard"  class="btn btn-warning">Start Playing</a>
+                <a asp-action="GetCard" class="btn btn-warning">Start Playing</a>
             </p>
         </div>
     </div>
 </div>
+
 <div class="control-section">
     <ejs-grid id="Grid" dataSource="ViewBag.datasource" toolbarClick="toolbarClick" allowPaging="true" allowExcelExport="true" toolbar="@(new List<string>() {"Search"})" allowSorting="true">
         <e-grid-pagesettings pageCount="5"></e-grid-pagesettings>
@@ -35,3 +37,5 @@
         }
     }
 </script>
+<link rel="stylesheet" href="~/css/material.css" />
+<script src="~/js/ej2.js"></script>

@@ -4,11 +4,11 @@ EXPOSE 80
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
-WORKDIR /src
-COPY ["CodingCards/CodingCards.csproj", "CodingCards/"]
-RUN dotnet restore "CodingCards/CodingCards.csproj"
+WORKDIR /src/CodingCards/
+COPY ["CodingCards.csproj", "/src/CodingCards/"]
+RUN dotnet restore "CodingCards.csproj"
 COPY . .
-WORKDIR "/src/CodingCards"
+WORKDIR "/src/CodingCards/"
 RUN dotnet build "CodingCards.csproj" -c Release -o /app/build
 
 FROM build AS publish

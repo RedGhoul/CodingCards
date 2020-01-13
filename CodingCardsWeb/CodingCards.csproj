@@ -8,21 +8,23 @@
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Data\Migrations\**" />
+    <Content Remove="Data\Migrations\**" />
+    <EmbeddedResource Remove="Data\Migrations\**" />
+    <None Remove="Data\Migrations\**" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.9.5" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.4" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.6" />
     <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="17.3.0.9-beta" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.103" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Folder Include="Data\Migrations\" />
-    <Folder Include="wwwroot\js\" />
   </ItemGroup>
 
 </Project>

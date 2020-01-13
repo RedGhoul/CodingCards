@@ -21,59 +21,45 @@ namespace CodingCards.Controllers
     [Authorize]
     public class CardsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICardRepository _cardRepository;
         private UserManager<ApplicationUser> _userManager;
 
-        public CardsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public CardsController(ICardRepository context, UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _cardRepository = context;
             _userManager = userManager;
         }
 
         // GET: Cards
-        public async Task<IActionResult> ListAllCards()
+        public async Task<IActionResult> HomeCards()
         {
             //await Helper.GetDataFromSQLite(_context);
-            ViewBag.datasource = await _context.Cards.ToListAsync();
+            ViewBag.datasource = await _cardRepository.GetRandomSetOfCardsAsync(100);
+            ViewBag.NumberOfEntrys = 100;
+            ViewBag.TotalCards = await _cardRepository.GetTotalCards();
+            return View();
+        }
+        public async Task<IActionResult> ViewAllCards()
+        {
+            //await Helper.GetDataFromSQLite(_context);
+            ViewBag.datasource = await _cardRepository.GetCardsAllAsync();
             return View();
         }
 
         public async Task<IActionResult> GetCard()
         {
-            int total = _context.Cards.Count();
-            Random r = new Random();
-            int offset = r.Next(0, total);
-
-            var result = _context.Cards.Skip(offset).FirstOrDefault();
-
-            var user = await _userManager.GetUserAsync(User);
-            result.NumberOfViews++;
-            _context.ApplicationUserCards.Add(new ApplicationUserCard()
-            {
-                ApplicationUser = user,
-                Card = result
-            });
-            await _context.SaveChangesAsync();
-
+            var result = await _cardRepository.GetRandomCardAsync();
             return View(result);
         }
 
         public async Task<IActionResult> GetAnswer(int? id)
         {
-            if (id == null)
+            var card = await _cardRepository.GetCardAsync(id);
+
+            if(card == null)
             {
                 return NotFound();
             }
-
-            var card = await _context.Cards
-                .FirstOrDefaultAsync(m => m.id == id);
-
-            if (card == null)
-            {
-                return NotFound();
-            }
-            card.NumberOfViewAnswers++;
-            await _context.SaveChangesAsync();
             return View(card);
         }
 
@@ -90,21 +76,16 @@ namespace CodingCards.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(card);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(ListAllCards));
+                await _cardRepository.SaveCard(card);
+                return RedirectToAction(nameof(HomeCards));
             }
             return View(card);
         }
 
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var card = await _cardRepository.GetCardAsync(id);
 
-            var card = await _context.Cards.FindAsync(id);
             if (card == null)
             {
                 return NotFound();
@@ -126,21 +107,13 @@ namespace CodingCards.Controllers
             {
                 try
                 {
-                    _context.Update(card);
-                    await _context.SaveChangesAsync();
+                    await _cardRepository.UpdateCard(card);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CardExists(card.id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    
                 }
-                return RedirectToAction(nameof(ListAllCards));
+                return RedirectToAction(nameof(HomeCards));
             }
             return View(card);
         }
@@ -153,8 +126,8 @@ namespace CodingCards.Controllers
                 return NotFound();
             }
 
-            var card = await _context.Cards
-                .FirstOrDefaultAsync(m => m.id == id);
+            var card = await _cardRepository.GetCardAsync(id);
+
             if (card == null)
             {
                 return NotFound();
@@ -168,15 +141,10 @@ namespace CodingCards.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var card = await _context.Cards.FindAsync(id);
-            _context.Cards.Remove(card);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(ListAllCards));
+            await _cardRepository.DeleteConfirmedAsync(id);
+            return RedirectToAction(nameof(HomeCards));
         }
 
-        private bool CardExists(int id)
-        {
-            return _context.Cards.Any(e => e.id == id);
-        }
+
     }
 }

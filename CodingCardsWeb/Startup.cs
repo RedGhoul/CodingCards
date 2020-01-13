@@ -39,14 +39,23 @@ namespace CodingCards
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddDistributedRedisCache(option =>
+            {
+                option.Configuration = Configuration.GetConnectionString("RedisConnection");
+                option.InstanceName = "master";
+            });
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(
                     Configuration.GetConnectionString("CardsPROD")));
+
             services.AddDefaultIdentity<ApplicationUser>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddScoped<ICardRepository, CardRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

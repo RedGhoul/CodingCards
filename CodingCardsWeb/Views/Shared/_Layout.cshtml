@@ -11,8 +11,7 @@
           crossorigin="anonymous"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" />
     <link rel="stylesheet" href="~/css/site.css" />
-    <link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/17.3.9-beta/material.css" />
-    <script src="https://cdn.syncfusion.com/ej2/17.3.9-beta/dist/ej2.min.js"></script>
+
 </head>
 <body>
     <header>
@@ -33,7 +32,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>*@
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Cards" asp-action="ListAllCards">Cards</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Cards" asp-action="HomeCards">Cards</a>
                         </li>
                     </ul>
                 </div>
@@ -42,9 +41,8 @@
     </header>
     <div class="container">
         <partial name="_CookieConsentPartial" />
-        <main role="main" class="pb-3">
+        
             @RenderBody()
-        </main>
     </div>
 
     <footer class="border-top footer text-muted">
