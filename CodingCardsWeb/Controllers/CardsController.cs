@@ -34,7 +34,8 @@ namespace CodingCards.Controllers
         public async Task<IActionResult> HomeCards()
         {
             //await Helper.GetDataFromSQLite(_context);
-            ViewBag.datasource = await _cardRepository.GetRandomSetOfCardsAsync(100);
+            var value = await _cardRepository.GetRandomSetOfCardsAsync(100);
+            ViewBag.datasource = value.ToArray();
             ViewBag.NumberOfEntrys = 100;
             ViewBag.TotalCards = await _cardRepository.GetTotalCards();
             return View();
@@ -72,12 +73,12 @@ namespace CodingCards.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("id,Question,Answer")] Card card)
+        public async Task<IActionResult> Create(Card card)
         {
             if (ModelState.IsValid)
             {
-                await _cardRepository.SaveCard(card);
-                return RedirectToAction(nameof(HomeCards));
+                //await _cardRepository.SaveCard(card);
+                //return RedirectToAction(nameof(HomeCards));
             }
             return View(card);
         }

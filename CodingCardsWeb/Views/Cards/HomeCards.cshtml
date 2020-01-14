@@ -1,4 +1,4 @@
-﻿
+﻿@Html.AntiForgeryToken()
 <div class="container">
     <div class="row">
         <div class="col">
@@ -34,19 +34,23 @@
     </div>
 </div>
 <div class="control-section">
-    <ejs-grid id="Grid" dataSource="ViewBag.datasource" toolbarClick="toolbarClick" allowPaging="true" allowExcelExport="true" toolbar="@(new List<string>() {"Search", "Add", "Edit", "Delete", "Cancel", "Update","PdfExport","ExcelExport"})" allowSorting="true">
-        <e-grid-editSettings allowAdding="true" allowDeleting="true" allowEditing="true" mode="Dialog" template='#dialogtemplate'></e-grid-editSettings>
+    <ejs-grid id="Grid" load="load" toolbarClick="toolbarClick" allowPaging="true" allowExcelExport="true"
+              toolbar="@(new List<string>() {"Search", "Add", "Edit", "Delete", "Cancel", "Update","PdfExport","ExcelExport"})"
+              allowSorting="true">
+
+        <e-data-manager json="@ViewBag.datasource" adaptor="RemoteSaveAdaptor" insertUrl="/Cards/Create" updateUrl="/Cards/Edit" removeUrl="/Cards/Delete"></e-data-manager>
+        <e-grid-editSettings allowDeleting="true" allowEditing="true" allowAdding="true" mode="Normal"></e-grid-editSettings>
         <e-grid-pagesettings pageCount="5"></e-grid-pagesettings>
         <e-grid-columns>
             <e-grid-column field="Question" headerText="Question" width="120"></e-grid-column>
             <e-grid-column field="Answer" headerText="Answer" width="150"></e-grid-column>
             <e-grid-column field="Type" headerText="Type" width="70"></e-grid-column>
+            <e-grid-column field="id" width="10" visible="false"></e-grid-column>
         </e-grid-columns>
     </ejs-grid>
 </div>
-<script id='dialogtemplate' type="text/x-template">
-    <div id="dialogTemp"></div>
-</script>
+
+<script src="~/js/ej2.js"></script>
 <script>
     function toolbarClick(args) {
         var gridObj = document.getElementById("Grid").ej2_instances[0];
@@ -58,48 +62,70 @@
         }
     }
 </script>
-<script>
-    function actionComplete(args) {
-        if (args.requestType === 'beginEdit') {
-            var ajax = new ej.base.Ajax({
-                url: "/Grid/EditPartial", //render the partial view
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify({ value: args.rowData })
-            });
-            ajax.send().then(function (data) {
-                appendElement(data, args.form); //Render the edit form with selected record
-                args.form.elements.namedItem('CustomerID').focus();
-            }).catch(function (xhr) {
-                console.log(xhr);
-            });
-        }
+<script type="text/javascript">
+    window.customAdaptor = new ej.data.RemoteSaveAdaptor();
 
-        if (args.requestType === 'add') {
-            var ajax = new ej.base.Ajax({
-                url: "/Grid/AddPartial", //render the partial view
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify({ value: args.rowData })
-            });
-            ajax.send().then(function (data) {
-                appendElement(data, args.form); //Render the edit form with selected record
-                args.form.elements.namedItem('OrderID').focus();
-            }).catch(function (xhr) {
-                console.log(xhr);
-            });
-        }
-    }
+    customAdaptor = ej.base.extend(customAdaptor, {
+        insert(dm, data, tableName) {
+            this.updateType = 'add';
+            console.log(data)
+            console.log(dm)
+            return {
+                url: dm.dataSource.insertUrl || dm.dataSource.crudUrl || dm.dataSource.url,
+                data: $.param({
+                    //Added the anti-forgery token.
+                    __RequestVerificationToken: document.getElementsByName("__RequestVerificationToken")[0].value,
+                    Question: data.Question,
+                    Answer: data.Answer,
+                    Type: data.Type,
+                    table: tableName,
+                    action: 'insert'
+                }),
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+            };
+        },
+        remove(dm, keyField, value, tableName) {
+             debugger;
+            ej.data.JsonAdaptor.prototype.remove(dm, keyField, value);
+            return {
+                type: 'POST',
+                url: dm.dataSource.removeUrl || dm.dataSource.crudUrl || dm.dataSource.url,
+                data: $.param({
+                    //Added the anti-forgery token.
+                    __RequestVerificationToken: document.getElementsByName("__RequestVerificationToken")[0].value,
+                    key: value,
+                    keyColumn: keyField,
+                    table: tableName,
+                    action: 'remove'
 
-    function appendElement(elementString, form) {
-        form.querySelector("#dialogTemp").innerHTML = elementString;
-        var script = document.createElement('script');
-        script.type = "text/javascript";
-        var serverScript = form.querySelector("#dialogTemp").querySelector('script');
-        script.textContent = serverScript.innerHTML;
-        document.head.appendChild(script);
-        serverScript.remove();
+                }),
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+            };
+        },
+        update(dm, keyField, value, tableName) {
+            debugger;
+            this.updateType = 'update';
+            return {
+                type: 'POST',
+                url: dm.dataSource.updateUrl || dm.dataSource.crudUrl || dm.dataSource.url,
+                data: $.param({
+                    //Added the anti-forgery token.
+                    __RequestVerificationToken: document.getElementsByName("__RequestVerificationToken")[0].value,
+                    action: 'update',
+                    table: tableName,
+                    Question: value.Question,
+                    Answer: value.Answer,
+                    Type: value.Type,
+                    Id: value.id
+                }),
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+            };
+        },
+    });
+
+    function load(args) {
+        this.dataSource.adaptor = customAdaptor;
     }
 </script>
 <link rel="stylesheet" href="~/css/material.css" />
-<script src="~/js/ej2.js"></script>
+
