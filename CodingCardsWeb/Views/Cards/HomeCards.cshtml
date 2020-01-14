@@ -14,6 +14,11 @@
                 <a asp-action="GetCard" class="btn btn-warning">Start Playing</a>
             </p>
         </div>
+        <div class="col col-lg-2">
+            <p>
+                <a asp-action="ViewAllCards" class="btn btn-primary">View All @ViewBag.TotalCards</a>
+            </p>
+        </div>
     </div>
 </div>
 <div class="container">
@@ -21,25 +26,19 @@
         <div class="col">
             <h6>Currently Displaying 100 out of @ViewBag.TotalCards</h6>
         </div>
-        <div class="col-md-auto">
-            <p>
-                <a asp-action="ViewAllCards" class="btn btn-primary">View All @ViewBag.TotalCards</a>
-            </p>
-        </div>
-        <div class="col col-lg-2">
-            <p>
-                <a asp-action="GetCard" class="btn btn-warning">Start Playing</a>
-            </p>
-        </div>
+
     </div>
 </div>
 <div class="control-section">
-    <ejs-grid id="Grid" load="load" toolbarClick="toolbarClick" allowPaging="true" allowExcelExport="true"
-              toolbar="@(new List<string>() {"Search", "Add", "Edit", "Delete", "Cancel", "Update","PdfExport","ExcelExport"})"
+    <ejs-grid id="Grid" load="load" allowPaging="true"
+              toolbar="@(new List<string>() {"Search", "Add", "Edit", "Cancel", "Update"})"
               allowSorting="true">
 
-        <e-data-manager json="@ViewBag.datasource" adaptor="RemoteSaveAdaptor" insertUrl="/Cards/Create" updateUrl="/Cards/Edit" removeUrl="/Cards/Delete"></e-data-manager>
-        <e-grid-editSettings allowDeleting="true" allowEditing="true" allowAdding="true" mode="Normal"></e-grid-editSettings>
+        <e-data-manager json="@ViewBag.datasource" adaptor="RemoteSaveAdaptor" 
+                        insertUrl="/Cards/Create" updateUrl="/Cards/Edit" 
+                        removeUrl="/Cards/Delete"></e-data-manager>
+        <e-grid-editSettings allowDeleting="true" allowEditing="true" 
+                             allowAdding="true" mode="Normal"></e-grid-editSettings>
         <e-grid-pagesettings pageCount="5"></e-grid-pagesettings>
         <e-grid-columns>
             <e-grid-column field="Question" headerText="Question" width="120"></e-grid-column>
@@ -51,17 +50,6 @@
 </div>
 
 <script src="~/js/ej2.js"></script>
-<script>
-    function toolbarClick(args) {
-        var gridObj = document.getElementById("Grid").ej2_instances[0];
-        if (args.item.id === 'Grid_pdfexport') {
-            gridObj.pdfExport();
-        }
-        if (args.item.id === 'Grid_excelexport') {
-            gridObj.excelExport();
-        }
-    }
-</script>
 <script type="text/javascript">
     window.customAdaptor = new ej.data.RemoteSaveAdaptor();
 
@@ -84,26 +72,7 @@
                 contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
             };
         },
-        remove(dm, keyField, value, tableName) {
-             debugger;
-            ej.data.JsonAdaptor.prototype.remove(dm, keyField, value);
-            return {
-                type: 'POST',
-                url: dm.dataSource.removeUrl || dm.dataSource.crudUrl || dm.dataSource.url,
-                data: $.param({
-                    //Added the anti-forgery token.
-                    __RequestVerificationToken: document.getElementsByName("__RequestVerificationToken")[0].value,
-                    key: value,
-                    keyColumn: keyField,
-                    table: tableName,
-                    action: 'remove'
-
-                }),
-                contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
-            };
-        },
         update(dm, keyField, value, tableName) {
-            debugger;
             this.updateType = 'update';
             return {
                 type: 'POST',
