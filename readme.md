@@ -6,7 +6,7 @@
 
 [Get Mobile Client - IOS](https://www.codinginterviewcards.com/)
 
-An easy to used flash card platform. To help you get ready for those super hard tech interviews.
+An easy to use flash card platform. To help you get ready for those super hard tech interviews.
 
 Repo consists of two projects:
 
