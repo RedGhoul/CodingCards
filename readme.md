@@ -1,4 +1,4 @@
-## Coding Cards
+## Coding Interview Cards
 
 [Visit Web Application](https://www.codinginterviewcards.com/)
 
