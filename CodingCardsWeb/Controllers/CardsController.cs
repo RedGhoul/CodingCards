@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace CodingCards.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class CardsController : Controller
     {
         private readonly ICardRepository _cardRepository;
@@ -31,6 +31,7 @@ namespace CodingCards.Controllers
         }
 
         // GET: Cards
+        [AllowAnonymous]
         public async Task<IActionResult> HomeCards()
         {
             //await Helper.GetDataFromSQLite(_context);
@@ -40,19 +41,21 @@ namespace CodingCards.Controllers
             ViewBag.TotalCards = await _cardRepository.GetTotalCards();
             return View();
         }
+        [AllowAnonymous]
         public async Task<IActionResult> ViewAllCards()
         {
             //await Helper.GetDataFromSQLite(_context);
-            ViewBag.datasource = await _cardRepository.GetCardsAllAsync();
+            var value = await _cardRepository.GetCardsAllAsync();
+            ViewBag.datasource = value.ToArray();
             return View();
         }
-
+        [AllowAnonymous]
         public async Task<IActionResult> GetCard()
         {
             var result = await _cardRepository.GetRandomCardAsync();
             return View(result);
         }
-
+        [AllowAnonymous]
         public async Task<IActionResult> GetAnswer(int? id)
         {
             var card = await _cardRepository.GetCardAsync(id);
@@ -77,8 +80,8 @@ namespace CodingCards.Controllers
         {
             if (ModelState.IsValid)
             {
-                //await _cardRepository.SaveCard(card);
-                //return RedirectToAction(nameof(HomeCards));
+                await _cardRepository.SaveCard(card);
+                return RedirectToAction(nameof(HomeCards));
             }
             return View(card);
         }

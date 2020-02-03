@@ -49,17 +49,38 @@ namespace CodingCards
                 options.UseMySql(
                     Configuration.GetConnectionString("CardsPROD")));
 
-            services.AddDefaultIdentity<ApplicationUser>()
+            services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = false;
+                options.Password.RequiredUniqueChars = 6;
+
+                // Lockout settings
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+                options.Lockout.MaxFailedAccessAttempts = 10;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings
+                options.User.RequireUniqueEmail = true;
+            });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
+            services.AddScoped<UserManager<ApplicationUser>>();
+            services.AddScoped<RoleManager<IdentityRole>>();
             services.AddScoped<ICardRepository, CardRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public async void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -85,6 +106,46 @@ namespace CodingCards
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            await CreateUserRoles(app);
+        }
+        
+
+
+        private async Task CreateUserRoles(IApplicationBuilder app)
+        {
+            using (IServiceScope scope = app.ApplicationServices.CreateScope())
+            {
+                var RoleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                var UserManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+                var content = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+                IdentityResult roleResult;
+
+                //Adding Admin Role
+                var roleCheck = await RoleManager.RoleExistsAsync("Admin");
+                if (!roleCheck)
+                {
+                    //create the roles and seed them to the database
+                    roleResult = await RoleManager.CreateAsync(new IdentityRole("Admin"));
+                }
+
+                //Assign Admin role to the main User here we have given our newly registered 
+                //login id for Admin management
+                ApplicationUser user = await UserManager.FindByEmailAsync("avaneesab5@gmail.com");
+                if (user != null)
+                {
+                    var currentUserRoles = await UserManager.GetRolesAsync(user);
+                    if (!currentUserRoles.Contains("Admin"))
+                    {
+                        await UserManager.AddToRoleAsync(user, "Admin");
+                    }
+                }
+            }
+
         }
     }
+
+    
 }
