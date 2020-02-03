@@ -16,7 +16,7 @@ namespace CodingCards.Data
         Task<Card> SaveCard(Card card);
         Task<Card> UpdateCard(Card card);
         Task DeleteConfirmedAsync(int? id);
-        Task<IEnumerable<Card>> GetRandomSetOfCardsAsync(int totalAmount);
+        Task<List<Card>> GetRandomSetOfCardsAsync(int totalAmount);
         bool CardExists(int id);
     }
 }

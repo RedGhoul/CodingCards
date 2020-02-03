@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CodingCards.Data;
 using CodingCards.Models;
+using CodingCards.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -47,7 +48,7 @@ namespace CodingCards
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseMySql(
-                    Configuration.GetConnectionString("CardsPROD")));
+                    Configuration.GetConnectionString("CardsDigitalOceanPROD")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
@@ -77,6 +78,7 @@ namespace CodingCards
             services.AddScoped<UserManager<ApplicationUser>>();
             services.AddScoped<RoleManager<IdentityRole>>();
             services.AddScoped<ICardRepository, CardRepository>();
+            services.AddScoped<ElasticService, ElasticService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
