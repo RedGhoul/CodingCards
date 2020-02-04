@@ -17,11 +17,8 @@ Technologies used:
 
 - Unity (The game engine) : Used for the developement of multi platform mobile client
 - MYSQL server : Used for data storage
-- .NET Core 2.2
+- Elastic Search : for indexing all those questions
+- .NET Core 3.0
 - ASP.NET MVC
 
-Hosted on AZURE using:
-
-A Managed Instance of MYSQL
-
-A Managed Instance of Azure Web Apps
+Hosted on Digital Ocean using Docker & Docker Swarm
