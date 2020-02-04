@@ -5,17 +5,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CodingCards.Data;
+using CodingCards.Helpers;
 using CodingCards.Models;
 using CodingCards.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using Pomelo.EntityFrameworkCore.MySql.Storage;
 
 namespace CodingCards
 {
@@ -46,12 +49,17 @@ namespace CodingCards
                 option.InstanceName = "master";
             });
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseMySql(
-                    Configuration.GetConnectionString("CardsDigitalOceanPROD")));
+            services.AddDbContextPool<ApplicationDbContext>(options => options
+                // replace with your connection string
+                .UseMySql(Secrets.getConnectionString(Configuration, "CardsDigitalOceanPROD"), mySqlOptions => mySqlOptions
+                    // replace with your Server Version and Type
+                    .ServerVersion(new ServerVersion(new Version(5, 7, 29), ServerType.MySql))
+                    .CommandTimeout(300)
+                ));
+
+
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -74,7 +82,7 @@ namespace CodingCards
                 options.User.RequireUniqueEmail = true;
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddScoped<UserManager<ApplicationUser>>();
             services.AddScoped<RoleManager<IdentityRole>>();
             services.AddScoped<ICardRepository, CardRepository>();
@@ -82,12 +90,11 @@ namespace CodingCards
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public async void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
             }
             else
             {
@@ -100,16 +107,20 @@ namespace CodingCards
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            app.UseAuthentication();
+            app.UseRouting();
 
-            app.UseMvc(routes =>
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
 
-            await CreateUserRoles(app);
+            //await CreateUserRoles(app);
         }
         
 
