@@ -45,7 +45,7 @@ namespace CodingCards
 
             services.AddDistributedRedisCache(option =>
             {
-                option.Configuration = Configuration.GetConnectionString("RedisConnection");
+                option.Configuration = Secrets.getConnectionString(Configuration, "RedisConnection");
                 option.InstanceName = "master";
             });
 
