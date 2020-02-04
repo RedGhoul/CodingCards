@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CodingCards.Services;
 
 namespace CodingCards.Data
 {
@@ -13,11 +14,13 @@ namespace CodingCards.Data
     {
         private readonly ApplicationDbContext _ctx;
         private readonly IDistributedCache _cache;
+        private readonly ElasticService _es;
 
-        public CardRepository(ApplicationDbContext ctx, IDistributedCache cache)
+        public CardRepository(ApplicationDbContext ctx, IDistributedCache cache, ElasticService es)
         {
             _ctx = ctx;
             _cache = cache;
+            _es = es;
         }
         public async Task<string> GetTotalCards()
         {
@@ -87,25 +90,27 @@ namespace CodingCards.Data
             return result;
         }
 
-        public async Task<IEnumerable<Card>> GetRandomSetOfCardsAsync(int totalAmount)
+        public async Task<List<Card>> GetRandomSetOfCardsAsync(int totalAmount)
         {
-            string cacheKey = "RandomSetOfCards";
-            string cardsString = await _cache.GetStringAsync(cacheKey);
-            IEnumerable<Card> cards = null;
-            if (string.IsNullOrEmpty(cardsString))
-            {
-                Random r = new Random();
-                int offset = r.Next(0, totalAmount);
-                cards = await _ctx.Cards.Take(totalAmount).Skip(offset).ToListAsync();
-                var options = new DistributedCacheEntryOptions();
-                options.SetSlidingExpiration(TimeSpan.FromMinutes(30));
-                await _cache.SetStringAsync(cacheKey, JsonConvert.SerializeObject(cards), options);
-            }
-            else
-            {
-                cards = JsonConvert.DeserializeObject<IEnumerable<Card>>(cardsString);
-            }
-            
+
+            var cards =await _es.QueryJobPosting(new Random().Next(1, 50), "", 100);
+            //string cacheKey = "RandomSetOfCards";
+            //string cardsString = await _cache.GetStringAsync(cacheKey);
+            //IEnumerable<Card> cards = null;
+            //if (string.IsNullOrEmpty(cardsString))
+            //{
+            //    Random r = new Random();
+            //    int offset = r.Next(0, totalAmount);
+            //    cards = await _ctx.Cards.Take(totalAmount).Skip(offset).ToListAsync();
+            //    var options = new DistributedCacheEntryOptions();
+            //    options.SetSlidingExpiration(TimeSpan.FromMinutes(30));
+            //    await _cache.SetStringAsync(cacheKey, JsonConvert.SerializeObject(cards), options);
+            //}
+            //else
+            //{
+            //    cards = JsonConvert.DeserializeObject<IEnumerable<Card>>(cardsString);
+            //}
+
 
             return cards;
         }
