@@ -1,5 +1,7 @@
 ## Coding Interview Cards
 
+![Build Status](https://dev.azure.com/Avaneesa/Coding%20Interview%20Cards/_apis/build/status/RedGhoul.CodingCards?branchName=master)
+
 [Visit Web Application](https://www.codinginterviewcards.com/)
 
 [Get Mobile Client - Android](https://www.codinginterviewcards.com/)
