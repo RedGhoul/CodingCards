@@ -35,7 +35,7 @@ namespace CodingCards.Controllers
         public async Task<IActionResult> HomeCards()
         {
             //await Helper.GetDataFromSQLite(_context);
-            var value = await _cardRepository.GetRandomSetOfCardsAsync(100);
+            var value = await _cardRepository.GetRandomSetOfCardsAsyncES(100);
             ViewBag.datasource = value.ToArray();
             ViewBag.NumberOfEntrys = 100;
             ViewBag.TotalCards = await _cardRepository.GetTotalCards();
@@ -50,7 +50,14 @@ namespace CodingCards.Controllers
             return View();
         }
         [AllowAnonymous]
-        public async Task<IActionResult> GetCard()
+        public async Task<IActionResult> ViewCard(int id)
+        {
+            var result = await _cardRepository.GetCardAsync(id);
+            return View(result);
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> GetRandomCard()
         {
             var result = await _cardRepository.GetRandomCardAsync();
             return View(result);

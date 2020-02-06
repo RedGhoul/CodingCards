@@ -1,19 +1,37 @@
-﻿<div id="banner" class="section-padding">
+﻿@model List<Card>
+
+<section class="jumbotron text-center">
     <div class="container">
-        <div class="row">
-            <div class="jumbotron">
-                <h1 class="small">Welcome To <span class="bold">Coding Interview Cards</span></h1>
-                <p class="big">AN Easy way to ready for your coding interview</p>
-                <a href="#" class="btn btn-banner">Learn More<i class="fa fa-send"></i></a>
-            </div>
-        </div>
+        <h1>Coding Interview Cards</h1>
+        <p class="lead text-muted">A great tool in your interview prep tool box</p>
+        <p>
+            <a href="#" class="btn btn-primary my-2">View Questions Now !</a>
+            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-secondary my-2">Sign Up</a>
+        </p>
     </div>
-</div>
-<div class="cta-1">
+</section>
+<div class="album py-5 bg-light">
     <div class="container">
-        <div class="row text-center white">
-            <h1 class="cta-title">Say Hello to the Jobs you Always Wanted !!</h1>
-            <p class="cta-sub-title"></p>
+       
+        <div class="row">
+            @for (int i = 0; i < Model.Count(); i++)
+            {
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <p class="card-text">@Model[i].Question</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <a asp-action="ViewCard" asp-controller="Cards" asp-route-id="@Model[i].id" class="btn btn-sm btn-outline-secondary">View</a>
+                                </div>
+                                <small class="text-muted">Views: @Model[i].NumberOfViews</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+          
+           
         </div>
     </div>
 </div>

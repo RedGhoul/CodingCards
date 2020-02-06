@@ -18,19 +18,9 @@ namespace CodingCards.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
-            modelBuilder.Entity<ApplicationUserCard>()
-                .HasKey(t => new { t.ApplicationUserId, t.CardId });
-
-            modelBuilder.Entity<ApplicationUserCard>()
-                .HasOne(pt => pt.ApplicationUser)
-                .WithMany(p => p.ApplicationUserCards)
-                .HasForeignKey(pt => pt.ApplicationUserId);
-
-            modelBuilder.Entity<ApplicationUserCard>()
-                .HasOne(pt => pt.Card)
-                .WithMany(t => t.ApplicationUserCards)
-                .HasForeignKey(pt => pt.CardId);
+            modelBuilder.Entity<ApplicationUser>()
+                .HasMany(c => c.Cards)
+                .WithOne(e => e.CardCreator);
 
             modelBuilder.Entity<Card>()
                 .Property(c => c.Type)
@@ -39,7 +29,6 @@ namespace CodingCards.Data
         }
 
         public DbSet<Card> Cards { get; set; }
-        public DbSet<ApplicationUserCard> ApplicationUserCards { get; set; }
     }
 
 }

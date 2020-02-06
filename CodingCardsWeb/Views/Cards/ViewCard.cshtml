@@ -1,0 +1,28 @@
+﻿@model Card
+
+<div class="album py-5 bg-light">
+    <div class="container">
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@Html.Raw(@Model.Question)</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><a class="btn btn-sm btn-outline-secondary" asp-action="GetAnswer" asp-route-id="@Model.id">Answer</a></li>
+                                <li class="list-group-item"><a class="btn btn-sm btn-outline-secondary" asp-action="GetRandomCard">Get Another</a></li>
+                                <li class="list-group-item"><a class="btn btn-sm btn-outline-success" asp-action="GetRandomCard">Knew It</a></li>
+                                <li class="list-group-item"><a class="btn btn-sm btn-outline-danger" asp-action="GetRandomCard">Didn't know it</a></li>
+                                </ul>
+                        </div>
+                    </div>
+                    <div class="card-footer text-muted">
+                        Views: @Model.NumberOfViews
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

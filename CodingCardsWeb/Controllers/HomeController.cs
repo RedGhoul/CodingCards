@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using System.Threading.Tasks;
+using CodingCards.Data;
 using Microsoft.AspNetCore.Mvc;
 using CodingCards.Models;
 
@@ -6,9 +8,17 @@ namespace CodingCards.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly ICardRepository _cardRepository;
+
+        public HomeController(ICardRepository cardRepository)
         {
-            return View();
+            _cardRepository = cardRepository;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var cards = await _cardRepository.GetRandomSetOfCardsAsyncDB(9);
+            return View(cards);
         }
 
         public IActionResult Privacy()

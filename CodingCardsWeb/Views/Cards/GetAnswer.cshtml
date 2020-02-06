@@ -1,31 +1,40 @@
 ﻿@model CodingCards.Models.Card
 
-@{
-    ViewData["Title"] = "Details";
-}
+<div class="album py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h4 class="my-0 font-weight-normal">@Html.Raw(@Model.Question)</h4>
+                        <medium class="my-0 font-weight-normal">Question Type: @Model.Type</medium>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <div class="row">
+                                <div class="col-1">
 
-<h1>Details</h1>
+                                </div>
+                                <div class="col-10">
+                                    @Html.Raw(Model.Answer)
+                                </div>
+                                <div class="col-1">
 
-<div>
-    <h4>Card</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Question)
-        </dt>
-        <dd class = "col-sm-10">
-            <h2>@Model.Question</h2>
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Answer)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.Raw(Model.Answer)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.id"  class="btn btn-dark" >Edit</a> |
-    <a asp-action="GetCard"  class="btn btn-dark">Back to List</a> |
-    <a asp-action="GetCard" class="btn btn-dark">Get Another</a>
+                                </div>
+                            </div>
+
+                        </p>
+
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><a class="btn btn-outline-primary">Edit</a></li>
+                            <li class="list-group-item"><a class="btn btn-outline-danger">Delete</a></li>
+                            <li class="list-group-item"><a class="btn btn-outline-light">Back To List</a></li>
+                            <li class="list-group-item"><a class="btn btn-outline-light">Get Another</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>
