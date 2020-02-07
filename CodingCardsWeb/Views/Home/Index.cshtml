@@ -5,12 +5,12 @@
         <h1>Coding Interview Cards</h1>
         <p class="lead text-muted">A great tool in your interview prep tool box</p>
         <p>
-            <a href="#" class="btn btn-primary my-2">View Questions Now !</a>
+            <a asp-action="FindAllCards" asp-controller="Cards" class="btn btn-primary my-2">View Questions Now !</a>
             <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-secondary my-2">Sign Up</a>
         </p>
     </div>
 </section>
-<div class="album py-5 bg-light">
+<div class="album py-5">
     <div class="container">
        
         <div class="row">
@@ -19,7 +19,7 @@
                 <div class="col-md-4">
                     <div class="card mb-4 shadow-sm">
                         <div class="card-body">
-                            <p class="card-text">@Model[i].Question</p>
+                            <p class="card-text" style="font-weight: bold;">@Model[i].Question</p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="btn-group">
                                     <a asp-action="ViewCard" asp-controller="Cards" asp-route-id="@Model[i].id" class="btn btn-sm btn-outline-secondary">View</a>

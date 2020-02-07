@@ -100,23 +100,23 @@ namespace CodingCards.Data
 
         public async Task<List<Card>> GetRandomSetOfCardsAsyncDB(int totalAmount)
         {
-
-            string cacheKey = "RandomSetOfCards";
-            string cardsString = await _cache.GetStringAsync(cacheKey);
-            List<Card> cards = null;
-            if (string.IsNullOrEmpty(cardsString))
-            {
-                Random r = new Random();
-                int offset = r.Next(0, totalAmount);
-                cards = await _ctx.Cards.Take(totalAmount).Skip(offset).ToListAsync();
-                var options = new DistributedCacheEntryOptions();
-                options.SetSlidingExpiration(TimeSpan.FromMinutes(30));
-                await _cache.SetStringAsync(cacheKey, JsonConvert.SerializeObject(cards), options);
-            }
-            else
-            {
-                cards = JsonConvert.DeserializeObject<List<Card>>(cardsString);
-            }
+            var cards = await _ctx.Cards.Skip(new Random().Next(1, 50)).Take(totalAmount).ToListAsync();
+            //string cacheKey = "RandomSetOfCards";
+            //string cardsString = await _cache.GetStringAsync(cacheKey);
+            //List<Card> cards = null;
+            //if (string.IsNullOrEmpty(cardsString))
+            //{
+            //    Random r = new Random();
+            //    int offset = r.Next(0, totalAmount);
+                
+            //    var options = new DistributedCacheEntryOptions();
+            //    options.SetSlidingExpiration(TimeSpan.FromMinutes(30));
+            //    await _cache.SetStringAsync(cacheKey, JsonConvert.SerializeObject(cards), options);
+            //}
+            //else
+            //{
+            //    cards = JsonConvert.DeserializeObject<List<Card>>(cardsString);
+            //}
 
             return cards;
         }

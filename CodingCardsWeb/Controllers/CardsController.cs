@@ -41,13 +41,14 @@ namespace CodingCards.Controllers
             ViewBag.TotalCards = await _cardRepository.GetTotalCards();
             return View();
         }
+
         [AllowAnonymous]
-        public async Task<IActionResult> ViewAllCards()
+        public async Task<IActionResult> FindAllCards()
         {
-            //await Helper.GetDataFromSQLite(_context);
-            var value = await _cardRepository.GetCardsAllAsync();
-            ViewBag.datasource = value.ToArray();
-            return View();
+            var cards = await _cardRepository.GetRandomSetOfCardsAsyncES(100);
+            ViewBag.TotalCards = await _cardRepository.GetTotalCards();
+
+            return View(cards);
         }
         [AllowAnonymous]
         public async Task<IActionResult> ViewCard(int id)
