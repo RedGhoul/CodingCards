@@ -5,8 +5,10 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using CodingCards.Services;
+using Microsoft.AspNetCore.Identity;
 
 namespace CodingCards.Data
 {
@@ -15,14 +17,17 @@ namespace CodingCards.Data
         private readonly ApplicationDbContext _ctx;
         private readonly IDistributedCache _cache;
         private readonly ElasticService _es;
+        private UserManager<ApplicationUser> _userManager;
 
         public CardRepository(ApplicationDbContext ctx, 
             IDistributedCache cache, 
-            ElasticService es)
+            ElasticService es,
+            UserManager<ApplicationUser> userManager)
         {
             _ctx = ctx;
             _cache = cache;
             _es = es;
+            _userManager = userManager;
         }
         public async Task<int> GetTotalCards()
         {
@@ -93,7 +98,7 @@ namespace CodingCards.Data
             return result;
         }
 
-        public async Task<List<Card>> GetRandomSetOfCardsAsyncES(int totalAmount)
+        public async Task<List<Card>> GetRandomSetOfCardsAsyncEs(int totalAmount)
         {
 
             var cards = await _es.QueryJobPosting(new Random().Next(1, 50), "", totalAmount);
@@ -101,7 +106,7 @@ namespace CodingCards.Data
             return cards;
         }
 
-        public async Task<List<Card>> GetRandomSetOfCardsAsyncDB(int totalAmount)
+        public async Task<List<Card>> GetRandomSetOfCardsAsyncDb(int totalAmount)
         {
             var cards = await _ctx.Cards.Skip(new Random().Next(1, 50)).Take(totalAmount).ToListAsync();
             foreach (Card card in cards)
@@ -139,6 +144,16 @@ namespace CodingCards.Data
             await _ctx.SaveChangesAsync();
             await _es.AddCardToES(card);
             return card;
+        }
+
+        public async Task<List<Card>> GetUserCards(ClaimsPrincipal user)
+        {
+            var currentUser = await _userManager.GetUserAsync(user);
+            var userCards = await _ctx.Cards
+                .Where(x => x.CardCreator.Id.Equals(currentUser.Id))
+                .ToListAsync();
+
+            return userCards;
         }
 
         public async Task<Card> UpdateCard(Card card)
@@ -190,6 +205,16 @@ namespace CodingCards.Data
                 await _ctx.SaveChangesAsync();
             }
 
+        }
+
+        public async Task<Card> SaveCard(Card card, ClaimsPrincipal user)
+        {
+            var currentUser = await _userManager.GetUserAsync(user);
+            card.CardCreator = currentUser;
+            _ctx.Add(card);
+            await _ctx.SaveChangesAsync();
+            await _es.AddCardToES(card);
+            return card;
         }
     }
 }

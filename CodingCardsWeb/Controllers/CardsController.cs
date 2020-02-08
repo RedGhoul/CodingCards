@@ -25,13 +25,11 @@ namespace CodingCards.Controllers
     public class CardsController : Controller
     {
         private readonly ICardRepository _cardRepository;
-        private UserManager<ApplicationUser> _userManager;
         private readonly string SearchVMCacheKey = "SearchVMCacheKey";
 
-        public CardsController(ICardRepository context, UserManager<ApplicationUser> userManager)
+        public CardsController(ICardRepository context)
         {
             _cardRepository = context;
-            _userManager = userManager;
         }
 
 
@@ -55,6 +53,8 @@ namespace CodingCards.Controllers
             cardIndexViewModel.Cards = result;
             return View(cardIndexViewModel);
         }
+
+
 
         [AllowAnonymous]
         [HttpPost]
@@ -81,7 +81,7 @@ namespace CodingCards.Controllers
         public async Task<IActionResult> GetRandomCard()
         {
             var result = await _cardRepository.GetRandomCardAsync();
-            return View(result);
+            return View("ViewCard",result);
         }
         [AllowAnonymous]
         public async Task<IActionResult> GetAnswer(int? id)
@@ -108,7 +108,7 @@ namespace CodingCards.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _cardRepository.SaveCard(card);
+                await _cardRepository.SaveCard(card, HttpContext.User);
                 return RedirectToAction(nameof(Index));
             }
             return View(card);
@@ -175,6 +175,14 @@ namespace CodingCards.Controllers
         {
             await _cardRepository.DeleteConfirmedAsync(id);
             return RedirectToAction(nameof(Index));
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> UsersCards()
+        {
+            var userCards = await _cardRepository.GetUserCards(HttpContext.User);
+            return View(userCards);
         }
 
 

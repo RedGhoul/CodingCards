@@ -1,0 +1,88 @@
+﻿@model IEnumerable<CodingCards.Models.Card>
+
+@{
+    ViewData["Title"] = "UserCards";
+}
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-footable/3.1.6/footable.bootstrap.min.css" integrity="sha256-HJmq7ZsJyNO0AZz/dTSiU984iDC5BSvR5It5SnGTyRg=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-footable/3.1.6/footable.filtering.min.css" integrity="sha256-+/31hebBCC6L8fDhEk3v/GaSPj7LaXyhCpycfCs7KRI=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-footable/3.1.6/footable.paging.min.css" integrity="sha256-nn/ARKd+l1ZLJK9Xw62iyxfdRyL3YXZU2EIItdBpqbE=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-footable/3.1.6/footable.sorting.min.css" integrity="sha256-18hHs7DKWL2d965ycAvDH7HvwjrmS7705nz2C7EdDZg=" crossorigin="anonymous" />
+
+
+<h1>UserCards</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table" data-filtering="true">
+    <thead>
+    <tr>
+        <th data-breakpoints="xs">
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th data-breakpoints="xs">
+            @Html.DisplayNameFor(model => model.Question)
+        </th>
+        <th data-breakpoints="xs">
+            @Html.DisplayNameFor(model => model.Answer)
+        </th>
+        <th data-breakpoints="xs">
+            @Html.DisplayNameFor(model => model.Type)
+        </th>
+        <th data-breakpoints="xs">
+            @Html.DisplayNameFor(model => model.NumberOfViews)
+        </th>
+        <th data-breakpoints="xs">
+            @Html.DisplayNameFor(model => model.NumberOfViewAnswers)
+        </th>
+        <th data-type="html" data-breakpoints="xs sm md"></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Question)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Answer)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Type)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NumberOfViews)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NumberOfViewAnswers)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+<style>
+    .form-inline {
+        flex-direction: row-reverse;
+    }
+
+    
+</style>
+@section Scripts
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-footable/3.1.6/footable.min.js" integrity="sha256-R3NffQkOJUqmiutQHnxEURXUXZru/7GMdM6CdH673Qw=" crossorigin="anonymous"></script>
+    <script>
+        jQuery(function($){
+            $('.table').footable();
+        });
+
+    </script>
+}
