@@ -88,6 +88,7 @@ namespace CodingCards.Data
             int offset = r.Next(0, total);
 
             var result = await GetCardAsync(offset);
+          
 
             return result;
         }
@@ -96,14 +97,19 @@ namespace CodingCards.Data
         {
 
             var cards = await _es.QueryJobPosting(new Random().Next(1, 50), "", totalAmount);
-
+           
             return cards;
         }
 
         public async Task<List<Card>> GetRandomSetOfCardsAsyncDB(int totalAmount)
         {
             var cards = await _ctx.Cards.Skip(new Random().Next(1, 50)).Take(totalAmount).ToListAsync();
-
+            foreach (Card card in cards)
+            {
+                card.NumberOfViews++;
+                
+            }
+            await _ctx.SaveChangesAsync();
             return cards;
         }
 
@@ -121,7 +127,7 @@ namespace CodingCards.Data
             {
                 return null;
             }
-            card.NumberOfViewAnswers++;
+            card.NumberOfViews++;
             await _ctx.SaveChangesAsync();
 
             return card;
@@ -131,7 +137,7 @@ namespace CodingCards.Data
         {
             _ctx.Add(card);
             await _ctx.SaveChangesAsync();
-
+            await _es.AddCardToES(card);
             return card;
         }
 
@@ -169,7 +175,7 @@ namespace CodingCards.Data
             {
                 fromNumber = cardIndexVM.Page * 12;
             }
-            var jobsCollection = await _es.QueryJobPosting(fromNumber, cardIndexVM.KeyWords,12);
+            var jobsCollection = await _es.QueryJobPosting(fromNumber, cardIndexVM.KeyWords,12,cardIndexVM.CardType);
 
             return jobsCollection;
         }

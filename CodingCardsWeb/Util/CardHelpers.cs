@@ -36,6 +36,10 @@ namespace CodingCards.Util
                 CardIndexVM.Page = 1;
             }
 
+            if (CardIndexVM.CardType == null)
+            {
+                CardIndexVM.CardType = CardType.Generic;
+            }
             return CardIndexVM;
 
         }

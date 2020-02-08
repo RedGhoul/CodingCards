@@ -5,9 +5,6 @@ using System.Threading.Tasks;
 
 namespace CodingCards.Models
 {
-    public class ESDTOs
-    {
-    }
 
     public class Shards
     {
@@ -37,11 +34,11 @@ namespace CodingCards.Models
     public class Hits
     {
         public int total { get; set; }
-        public double max_score { get; set; }
+        public string max_score { get; set; }
         public List<Hit> hits { get; set; }
     }
 
-    public class RootObject
+    public class RootResponseObject
     {
         public int took { get; set; }
         public bool timed_out { get; set; }
