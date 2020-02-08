@@ -26,8 +26,6 @@ namespace CodingCards
     {
         public Startup(IConfiguration configuration)
         {
-            string key = configuration.GetSection("AppSettings")["SYNC"];
-            SyncfusionLicenseProvider.RegisterLicense(key);
             Configuration = configuration;
         }
 
@@ -80,8 +78,10 @@ namespace CodingCards
 
                 // User settings
                 options.User.RequireUniqueEmail = true;
+                
             });
-
+            services.ConfigureApplicationCookie(options => options.LoginPath = "/Identity/Account/Login");
+            services.AddSession();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddScoped<UserManager<ApplicationUser>>();
             services.AddScoped<RoleManager<IdentityRole>>();
@@ -99,7 +99,6 @@ namespace CodingCards
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -111,6 +110,7 @@ namespace CodingCards
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {
@@ -120,7 +120,7 @@ namespace CodingCards
                 endpoints.MapRazorPages();
             });
 
-            //await CreateUserRoles(app);
+            await CreateUserRoles(app);
         }
         
 

@@ -10,6 +10,6 @@ namespace CodingCards.Models
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public IList<ApplicationUserCard> ApplicationUserCards { get; set; }
+        public ICollection<Card> Cards { get; set; }
     }
 }

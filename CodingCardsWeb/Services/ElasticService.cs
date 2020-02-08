@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using CodingCards.Models;
 using Newtonsoft.Json;
@@ -10,31 +11,89 @@ namespace CodingCards.Services
 {
     public class ElasticService
     {
-        public string baseUrlsearch = "http://a-main-elastic.experimentsinthedeep.com/cards/_search?";
+        public string baseUrl = "http://a-main-elastic.experimentsinthedeep.com/codinginterviewcards/";
+        public async Task<bool> AddCardToES(Card card)
+        {
+            var json = JsonConvert.SerializeObject(card, Formatting.None,
+                new JsonSerializerSettings()
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                });
+            var data = new StringContent(json, Encoding.UTF8, "application/json");
 
-        public async Task<List<Card>> QueryJobPosting(int fromNumber, string keywords, int size)
+            var client = new HttpClient();
+
+            var response = await client.PutAsync(baseUrl + "_doc/" + card.id, data);
+
+            return response.IsSuccessStatusCode;
+
+        }
+        public async Task<List<Card>> QueryJobPosting(int fromNumber, string keywords, int size, CardType? cardType)
         {
             var client = new HttpClient();
-            //http://a-main-elastic.experimentsinthedeep.com/jobpostings/_search?q=Description:aws&from=12&size=12
-
+            string result = "";
             HttpResponseMessage response = null;
-            string finalQueryString = "";
-            if (string.IsNullOrEmpty(keywords))
+            if (string.IsNullOrEmpty(keywords.Replace(" ", "")))
             {
-                finalQueryString = baseUrlsearch + "q=from=" + fromNumber + "&size=" + size;
+                string finalQueryString = baseUrl + "_search?" + "q=Type:"+ (int)cardType + "&from=" + fromNumber + "&size=" + size;
+                response = await client.GetAsync(finalQueryString);
+
+                result = response.Content.ReadAsStringAsync().Result;
             }
             else
             {
-                finalQueryString = baseUrlsearch + "q=Question:" + keywords + "&from=" + fromNumber + "&size=" + 12;
-            }
-            response = await client.GetAsync(finalQueryString);
+                RootDSLObject dsl = new RootDSLObject();
+                try
+                {
 
-            var result = response.Content.ReadAsStringAsync().Result;
+                    dsl.from = fromNumber;
+                    dsl.size = size;
+                    dsl.query = new Query();
+                    dsl.query.@bool = new Bool();
+                    dsl.query.@bool.must = new List<Must>();
+                    dsl.query.@bool.filter = new List<Filter>();
+                    dsl.query.@bool.must.Add(new Must
+                    {
+                        match = new
+                        {
+                            Answer = keywords
+                        }
+                    });
+
+                    dsl.query.@bool.must.Add(new Must
+                    {
+                        match = new
+                        {
+                            Question = keywords
+                        }
+                    });
+                    dsl.query.@bool.filter.Add(new Filter
+                    {
+                        term = new
+                        {
+                            Type = cardType
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                var json = JsonConvert.SerializeObject(dsl);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                response = await client.PostAsync(baseUrl + "_search", data);
+
+                result = response.Content.ReadAsStringAsync().Result;
+            }
+
+ 
+           
 
             try
             {
-                RootObject list = JsonConvert
-                    .DeserializeObject<RootObject>(result);
+                RootResponseObject list = JsonConvert
+                    .DeserializeObject<RootResponseObject>(result);
                 List<Card> listsCards = new List<Card>();
                 foreach (var item in list.hits.hits)
                 {
@@ -45,10 +104,75 @@ namespace CodingCards.Services
             }
             catch (Exception ex)
             {
-                return null;
+                Console.WriteLine(ex.InnerException);
+                return new List<Card>();
             }
 
 
         }
+
+        public async Task<List<Card>> QueryJobPosting(int fromNumber, string keywords, int size)
+        {
+            var client = new HttpClient();
+
+            HttpResponseMessage response = null;
+            RootDSLObject dsl = new RootDSLObject();
+            try
+            {
+
+                dsl.from = fromNumber;
+                dsl.size = size;
+                dsl.query = new Query();
+                dsl.query.@bool = new Bool();
+                dsl.query.@bool.must = new List<Must>();
+                dsl.query.@bool.filter = new List<Filter>();
+                dsl.query.@bool.must.Add(new Must
+                {
+                    match = new
+                    {
+                        Answer = keywords
+                    }
+                });
+
+                dsl.query.@bool.must.Add(new Must
+                {
+                    match = new
+                    {
+                        Question = keywords
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            var json = JsonConvert.SerializeObject(dsl);
+            var data = new StringContent(json, Encoding.UTF8, "application/json");
+            response = await client.PostAsync(baseUrl + "_search", data);
+
+            var result = response.Content.ReadAsStringAsync().Result;
+
+            try
+            {
+                RootResponseObject list = JsonConvert
+                    .DeserializeObject<RootResponseObject>(result);
+                List<Card> listsCards = new List<Card>();
+                foreach (var item in list.hits.hits)
+                {
+
+                    listsCards.Add(item._source);
+                }
+                return listsCards;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.InnerException);
+                return new List<Card>();
+            }
+
+
+        }
+
     }
 }

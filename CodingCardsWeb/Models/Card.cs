@@ -14,6 +14,6 @@ namespace CodingCards.Models
         public CardType Type { get; set; }
         public int NumberOfViews { get; set; }
         public int NumberOfViewAnswers { get; set; }
-        public IList<ApplicationUserCard> ApplicationUserCards { get; set; }
+        public ApplicationUser CardCreator { get; set; }
     }
 }

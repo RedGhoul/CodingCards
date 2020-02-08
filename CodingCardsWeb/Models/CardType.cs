@@ -9,6 +9,7 @@ namespace CodingCards.Models
     {
         Generic,
         LongAnswer,
-        SysDesign
+        SysDesign,
+        OopDesign
     }
 }

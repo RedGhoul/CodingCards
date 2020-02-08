@@ -7,72 +7,37 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="~/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="~/css/font-awesome.min.css">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,600|Raleway:600,300|Josefin+Slab:400,700,600italic,600,400italic' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="~/css/slick-team-slider.css" />
-    <link rel="stylesheet" type="text/css" href="~/css/style.css">
-
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="~/css/auth.css">
+    <link rel="stylesheet" href="~/css/site.css">
 </head>
 <body>
-<!--HEADER START-->
-<div class="main-navigation navbar-fixed-top">
-    <nav class="navbar navbar-default">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Coding Interview Cards</a>
-            </div>
-            <div class="collapse navbar-collapse" id="myNavbar">
-                <ul class="nav navbar-nav navbar-right">
-                    <partial name="_LoginPartial"/>
-
-                    @*<li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>*@
-                    @*<li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>*@
-                    <li>
-                        <a asp-area="" asp-controller="Cards" asp-action="HomeCards">Cards</a>
-                    </li>
-                </ul>
-                
-            </div>
-        </div>
-    </nav>
-</div>
-<!--HEADER END-->
-
-
-    <partial name="_CookieConsentPartial"/>
-
-    @RenderBody()
-
-
-<div class="footer-bottom">
-    <div class="container">
-        <div style="visibility: visible; animation-name: zoomIn;" class="col-md-12 text-center wow zoomIn">
-            <div class="footer_copyright">
-                <p> © Copyright, All Rights Reserved.</p>
-                <div class="credits">
-                    Designed by <a href="https://bootstrapmade.com/">Avaneesa Basappa</a>
-                </div>
-            </div>
-        </div>
+<header>
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+        <h5 class="my-0 mr-md-auto font-weight-normal"><a asp-controller="Home" asp-action="Index">Coding Interview Cards</a></h5>
+        <nav class="my-2 my-md-0 mr-md-3">
+            <a class="p-2 text-dark" asp-controller="Cards" asp-action="Create">Create A Card</a>
+            <a class="p-2 text-dark" asp-controller="Cards" asp-action="Index">View All Cards</a>
+        </nav>
+        <partial name="_LoginPartial"/>
     </div>
-</div>
-<script src="~/js/jquery.min.js"></script>
-<script src="~/js/jquery.easing.min.js"></script>
-<script src="~/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="~/js/slick.min.js"></script>
-<script type="text/javascript" src="~/js/custom.js"></script>
+</header>
+<main role="main">
+    @RenderBody()
+</main>
+<footer class="text-muted">
+    <div class="container">
+        <p class="float-right">
+            <a href="#">Back to top</a>
+        </p>
+        <p>Created by Avaneesa Basappa</p>
+        <p>Check me out at <a href="https://www.avaneesa.me/">avaneesa.me</a></p>
+    </div>
+</footer>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
 @RenderSection("Scripts", required: false)
-<ejs-scripts></ejs-scripts>
 </body>
 </html>
