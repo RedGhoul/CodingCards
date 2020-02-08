@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using CodingCards.Models;
 using Newtonsoft.Json;
@@ -10,12 +11,26 @@ namespace CodingCards.Services
 {
     public class ElasticService
     {
-        public string baseUrlsearch = "http://a-main-elastic.experimentsinthedeep.com/cards/_search?";
+        public string baseUrlsearch = "http://a-main-elastic.experimentsinthedeep.com/codinginterviewcards/_search?";
+        public async Task<bool> AddCardToES(Card card)
+        {
+            var json = JsonConvert.SerializeObject(card, Formatting.None,
+                new JsonSerializerSettings()
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                });
+            var data = new StringContent(json, Encoding.UTF8, "application/json");
 
+            var client = new HttpClient();
+
+            var response = await client.PutAsync("http://a-main-elastic.experimentsinthedeep.com" + "/codinginterviewcards/_doc/" + card.id, data);
+
+            return response.IsSuccessStatusCode;
+
+        }
         public async Task<List<Card>> QueryJobPosting(int fromNumber, string keywords, int size)
         {
             var client = new HttpClient();
-            //http://a-main-elastic.experimentsinthedeep.com/jobpostings/_search?q=Description:aws&from=12&size=12
 
             HttpResponseMessage response = null;
             string finalQueryString = "";
@@ -25,7 +40,7 @@ namespace CodingCards.Services
             }
             else
             {
-                finalQueryString = baseUrlsearch + "q=Question:" + keywords + "&from=" + fromNumber + "&size=" + 12;
+                finalQueryString = baseUrlsearch + "q=Answer:" + keywords + "&from=" + fromNumber + "&size=" + 12;
             }
             response = await client.GetAsync(finalQueryString);
 
@@ -45,10 +60,12 @@ namespace CodingCards.Services
             }
             catch (Exception ex)
             {
-                return null;
+                Console.WriteLine(ex.InnerException);
+                return new List<Card>();
             }
 
 
         }
+
     }
 }

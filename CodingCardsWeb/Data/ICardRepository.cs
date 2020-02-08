@@ -8,7 +8,7 @@ namespace CodingCards.Data
 {
     public interface ICardRepository
     {
-        Task<string> GetTotalCards();
+        Task<int> GetTotalCards();
         Task<IEnumerable<Card>> GetCardsAsync(int amount);
         Task<IEnumerable<Card>> GetCardsAllAsync();
         Task<Card> GetRandomCardAsync();
@@ -19,5 +19,6 @@ namespace CodingCards.Data
         Task<List<Card>> GetRandomSetOfCardsAsyncES(int totalAmount);
         Task<List<Card>> GetRandomSetOfCardsAsyncDB(int totalAmount);
         bool CardExists(int id);
+        Task<List<Card>> ConfigureSearchAsync(CardIndexViewModel cardIndexVM);
     }
 }

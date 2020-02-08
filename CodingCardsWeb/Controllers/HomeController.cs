@@ -18,7 +18,9 @@ namespace CodingCards.Controllers
         public async Task<IActionResult> Index()
         {
             var cards = await _cardRepository.GetRandomSetOfCardsAsyncDB(9);
-            return View(cards);
+            CardIndexViewModel vm = new CardIndexViewModel();
+            vm.Cards = cards;
+            return View(vm);
         }
 
         public IActionResult Privacy()

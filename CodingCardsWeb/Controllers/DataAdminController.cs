@@ -6,45 +6,39 @@ using System.Text;
 using System.Threading.Tasks;
 using CodingCards.Data;
 using CodingCards.Models;
+using CodingCards.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace CodingCards.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class DataAdminController : Controller
     {
         private readonly ICardRepository _cardRepository;
         private UserManager<ApplicationUser> _userManager;
+        private readonly ElasticService _es;
 
-        public DataAdminController(ICardRepository context, UserManager<ApplicationUser> userManager)
+        public DataAdminController(ICardRepository context, 
+            UserManager<ApplicationUser> userManager,
+            ElasticService es)
         {
             _cardRepository = context;
             _userManager = userManager;
+            _es = es;
         }
 
         public async Task<IActionResult> IndexIntoElastic()
         {
+            var items = await _cardRepository.GetCardsAllAsync();
 
-            for (int i = 2; i < 1740; i++)
+            foreach (var card in items)
             {
-                var item = await _cardRepository.GetCardAsync(i);
-                if (item != null)
-                {
-                    var json = JsonConvert.SerializeObject(item, Formatting.None,
-                        new JsonSerializerSettings()
-                        {
-                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                        });
-                    var data = new StringContent(json, Encoding.UTF8, "application/json");
-
-                    var client = new HttpClient();
-
-                    var response = await client.PutAsync("http://a-main-elastic.experimentsinthedeep.com" + "/cards/_doc/" + item.id, data);
-                }
-
+                await _es.AddCardToES(card);
             }
-
+           
 
             return RedirectToAction("Index", "Home");
         }

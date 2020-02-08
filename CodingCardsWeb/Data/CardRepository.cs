@@ -16,13 +16,15 @@ namespace CodingCards.Data
         private readonly IDistributedCache _cache;
         private readonly ElasticService _es;
 
-        public CardRepository(ApplicationDbContext ctx, IDistributedCache cache, ElasticService es)
+        public CardRepository(ApplicationDbContext ctx, 
+            IDistributedCache cache, 
+            ElasticService es)
         {
             _ctx = ctx;
             _cache = cache;
             _es = es;
         }
-        public async Task<string> GetTotalCards()
+        public async Task<int> GetTotalCards()
         {
             string cacheKey = "TotalCards";
             string TotalCards = await _cache.GetStringAsync(cacheKey);
@@ -36,7 +38,7 @@ namespace CodingCards.Data
                 await _cache.SetStringAsync(cacheKey, TotalCards, options);
             }
 
-            return TotalCards;
+            return Int32.Parse(TotalCards);
         }
 
         public async Task<IEnumerable<Card>> GetCardsAsync(int amount)
@@ -81,9 +83,9 @@ namespace CodingCards.Data
 
         public async Task<Card> GetRandomCardAsync()
         {
-            string total = await GetTotalCards();
+            int total = await GetTotalCards();
             Random r = new Random();
-            int offset = r.Next(0, Int32.Parse(total));
+            int offset = r.Next(0, total);
 
             var result = await GetCardAsync(offset);
 
@@ -101,22 +103,6 @@ namespace CodingCards.Data
         public async Task<List<Card>> GetRandomSetOfCardsAsyncDB(int totalAmount)
         {
             var cards = await _ctx.Cards.Skip(new Random().Next(1, 50)).Take(totalAmount).ToListAsync();
-            //string cacheKey = "RandomSetOfCards";
-            //string cardsString = await _cache.GetStringAsync(cacheKey);
-            //List<Card> cards = null;
-            //if (string.IsNullOrEmpty(cardsString))
-            //{
-            //    Random r = new Random();
-            //    int offset = r.Next(0, totalAmount);
-                
-            //    var options = new DistributedCacheEntryOptions();
-            //    options.SetSlidingExpiration(TimeSpan.FromMinutes(30));
-            //    await _cache.SetStringAsync(cacheKey, JsonConvert.SerializeObject(cards), options);
-            //}
-            //else
-            //{
-            //    cards = JsonConvert.DeserializeObject<List<Card>>(cardsString);
-            //}
 
             return cards;
         }
@@ -156,7 +142,7 @@ namespace CodingCards.Data
                 _ctx.Update(card);
                 await _ctx.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
                 if (!CardExists(card.id))
                 {
@@ -164,7 +150,7 @@ namespace CodingCards.Data
                 }
                 else
                 {
-                    throw;
+                    Console.WriteLine(ex.InnerException);
                 }
             }
 
@@ -176,6 +162,19 @@ namespace CodingCards.Data
             return _ctx.Cards.Any(e => e.id == id);
         }
 
+        public async Task<List<Card>> ConfigureSearchAsync(CardIndexViewModel cardIndexVM)
+        {
+            var fromNumber = 0;
+            if (cardIndexVM.Page > 1)
+            {
+                fromNumber = cardIndexVM.Page * 12;
+            }
+            var jobsCollection = await _es.QueryJobPosting(fromNumber, cardIndexVM.KeyWords,12);
+
+            return jobsCollection;
+        }
+
+
         public async Task DeleteConfirmedAsync(int? id)
         {
             var card = await GetCardAsync(id);
@@ -186,6 +185,5 @@ namespace CodingCards.Data
             }
 
         }
-
     }
 }

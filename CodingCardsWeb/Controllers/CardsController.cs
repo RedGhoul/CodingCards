@@ -11,10 +11,13 @@ using Microsoft.EntityFrameworkCore;
 using CodingCards.Data;
 using CodingCards.Helpers;
 using CodingCards.Models;
+using CodingCards.Util;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Syncfusion.EJ2.Grids;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 
 namespace CodingCards.Controllers
 {
@@ -23,6 +26,7 @@ namespace CodingCards.Controllers
     {
         private readonly ICardRepository _cardRepository;
         private UserManager<ApplicationUser> _userManager;
+        private readonly string SearchVMCacheKey = "SearchVMCacheKey";
 
         public CardsController(ICardRepository context, UserManager<ApplicationUser> userManager)
         {
@@ -30,26 +34,42 @@ namespace CodingCards.Controllers
             _userManager = userManager;
         }
 
-        // GET: Cards
+
         [AllowAnonymous]
-        public async Task<IActionResult> HomeCards()
+        [HttpGet]
+        public async Task<IActionResult> Index()
         {
-            //await Helper.GetDataFromSQLite(_context);
-            var value = await _cardRepository.GetRandomSetOfCardsAsyncES(100);
-            ViewBag.datasource = value.ToArray();
-            ViewBag.NumberOfEntrys = 100;
-            ViewBag.TotalCards = await _cardRepository.GetTotalCards();
-            return View();
+            var value = HttpContext.Session.GetString(SearchVMCacheKey);
+            CardIndexViewModel cardIndexViewModel = string.IsNullOrEmpty(value) ?
+                CardHelpers.SetDefaultFindModel(new CardIndexViewModel()) :
+                JsonConvert.DeserializeObject<CardIndexViewModel>(value);
+
+            CardHelpers.SetupViewBag(cardIndexViewModel, ViewBag);
+
+            var result = await _cardRepository.ConfigureSearchAsync(cardIndexViewModel);
+            var count = await _cardRepository.GetTotalCards();
+
+            ViewBag.MaxPage = count / cardIndexViewModel.Page;
+
+            ViewBag.Page = cardIndexViewModel.Page;
+            cardIndexViewModel.Cards = result;
+            return View(cardIndexViewModel);
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> FindAllCards()
+        [HttpPost]
+        public IActionResult IndexPost(CardIndexViewModel homeIndexVm)
         {
-            var cards = await _cardRepository.GetRandomSetOfCardsAsyncES(100);
-            ViewBag.TotalCards = await _cardRepository.GetTotalCards();
+            homeIndexVm = CardHelpers.SetDefaultFindModel(homeIndexVm);
 
-            return View(cards);
+            CardHelpers.SetupViewBag(homeIndexVm, ViewBag);
+
+            var vmData = JsonConvert.SerializeObject(homeIndexVm);
+            HttpContext.Session.SetString(SearchVMCacheKey, vmData);
+
+            return RedirectToAction("Index");
         }
+
         [AllowAnonymous]
         public async Task<IActionResult> ViewCard(int id)
         {
@@ -89,7 +109,7 @@ namespace CodingCards.Controllers
             if (ModelState.IsValid)
             {
                 await _cardRepository.SaveCard(card);
-                return RedirectToAction(nameof(HomeCards));
+                return RedirectToAction(nameof(Index));
             }
             return View(card);
         }
@@ -125,7 +145,7 @@ namespace CodingCards.Controllers
                 {
                     
                 }
-                return RedirectToAction(nameof(HomeCards));
+                return RedirectToAction(nameof(Index));
             }
             return View(card);
         }
@@ -154,7 +174,7 @@ namespace CodingCards.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _cardRepository.DeleteConfirmedAsync(id);
-            return RedirectToAction(nameof(HomeCards));
+            return RedirectToAction(nameof(Index));
         }
 
 
