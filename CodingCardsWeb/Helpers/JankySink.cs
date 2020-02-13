@@ -31,7 +31,7 @@ namespace CodingCards.Helpers
 
             var client = new HttpClient();
 
-            var response = await client.PostAsync("http://app-janky.experimentsinthedeep.com/elasticsearch/log/codingcardslogs", data);
+            var response = await client.PostAsync("http://a-main-elastic.experimentsinthedeep.com/codingcardslogs", data);
         }
     }
 }
