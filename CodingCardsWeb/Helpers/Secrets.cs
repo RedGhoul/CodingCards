@@ -8,7 +8,7 @@ namespace CodingCards.Helpers
 {
     public class Secrets
     {
-        public static string getAppSettingsValue(IConfiguration Configuration, string name)
+        public static string GetAppSettingsValue(IConfiguration Configuration, string name)
         {
             var value = Configuration.GetSection("AppSettings")[name];
             if (!String.IsNullOrEmpty(value))
@@ -18,7 +18,7 @@ namespace CodingCards.Helpers
             return Environment.GetEnvironmentVariable(name);
         }
 
-        public static string getConnectionString(IConfiguration Configuration, string name)
+        public static string GetConnectionString(IConfiguration Configuration, string name)
         {
             var value = Configuration.GetConnectionString(name);
             if (!String.IsNullOrEmpty(value))

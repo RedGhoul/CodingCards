@@ -4,14 +4,20 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using CodingCards.Helpers;
 using CodingCards.Models;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace CodingCards.Services
 {
     public class ElasticService
     {
-        public string baseUrl = "http://a-main-elastic.experimentsinthedeep.com/codinginterviewcards/";
+        public string baseUrl = "";
+        public ElasticService(IConfiguration configuration)
+        {
+            baseUrl = Secrets.GetConnectionString(configuration,"CardsDigitalOceanPROD_ES") + "/codinginterviewcards/";
+        }
         public async Task<bool> AddCardToES(Card card)
         {
             var json = JsonConvert.SerializeObject(card, Formatting.None,

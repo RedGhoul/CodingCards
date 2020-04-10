@@ -41,15 +41,15 @@ namespace CodingCards
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddDistributedRedisCache(option =>
-            {
-                option.Configuration = Secrets.getConnectionString(Configuration, "RedisConnection");
-                option.InstanceName = "master";
-            });
+            //services.AddDistributedRedisCache(option =>
+            //{
+            //    option.Configuration = Secrets.getConnectionString(Configuration, "RedisConnection");
+            //    option.InstanceName = "master";
+            //});
 
             services.AddDbContextPool<ApplicationDbContext>(options => options
                 // replace with your connection string
-                .UseMySql(Secrets.getConnectionString(Configuration, "CardsDigitalOceanPROD"), mySqlOptions => mySqlOptions
+                .UseMySql(Secrets.GetConnectionString(Configuration, "CardsDigitalOceanPROD_RDMS"), mySqlOptions => mySqlOptions
                     // replace with your Server Version and Type
                     .ServerVersion(new ServerVersion(new Version(5, 7, 29), ServerType.MySql))
                     .CommandTimeout(300)
@@ -90,7 +90,7 @@ namespace CodingCards
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -120,7 +120,7 @@ namespace CodingCards
                 endpoints.MapRazorPages();
             });
 
-            await CreateUserRoles(app);
+            //await CreateUserRoles(app);
         }
         
 
