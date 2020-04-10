@@ -1,5 +1,0 @@
-{
-    "appService.preDeployTask": "publish-release",
-    "appService.deploySubpath": "bin\\Release\\netcoreapp2.2\\publish",
-    "appService.defaultWebAppToDeploy": "/subscriptions/0ece5b7d-3ece-450f-be4b-0f081461acf8/resourceGroups/appsvc_windows_centralus/providers/Microsoft.Web/sites/ccccards"
-}

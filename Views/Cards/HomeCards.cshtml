@@ -1,0 +1,100 @@
+﻿@Html.AntiForgeryToken()
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>Card Index</h1>
+        </div>
+        <div class="col-md-auto">
+            <p>
+                <a asp-action="Create" class="btn btn-primary">Create New Card</a>
+            </p>
+        </div>
+        <div class="col col-lg-2">
+            <p>
+                <a asp-action="GetCard" class="btn btn-warning">Start Playing</a>
+            </p>
+        </div>
+        <div class="col col-lg-2">
+            <p>
+                <a asp-action="ViewAllCards" class="btn btn-primary">View All @ViewBag.TotalCards</a>
+            </p>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h6>Currently Displaying 100 out of @ViewBag.TotalCards</h6>
+        </div>
+
+    </div>
+</div>
+<div class="control-section">
+    <ejs-grid id="Grid" load="load" allowPaging="true"
+              toolbar="@(new List<string>() {"Search", "Add", "Edit", "Cancel", "Update"})"
+              allowSorting="true">
+
+        <e-data-manager json="@ViewBag.datasource" adaptor="RemoteSaveAdaptor" 
+                        insertUrl="/Cards/Create" updateUrl="/Cards/Edit" 
+                        removeUrl="/Cards/Delete"></e-data-manager>
+        <e-grid-editSettings allowDeleting="true" allowEditing="true" 
+                             allowAdding="true" mode="Normal"></e-grid-editSettings>
+        <e-grid-pagesettings pageCount="5"></e-grid-pagesettings>
+        <e-grid-columns>
+            <e-grid-column field="Question" headerText="Question" width="120"></e-grid-column>
+            <e-grid-column field="Answer" headerText="Answer" width="150"></e-grid-column>
+            <e-grid-column field="Type" headerText="Type" width="70"></e-grid-column>
+            <e-grid-column field="id" width="10" visible="false"></e-grid-column>
+        </e-grid-columns>
+    </ejs-grid>
+</div>
+
+<script src="~/js/ej2.js"></script>
+<script type="text/javascript">
+    window.customAdaptor = new ej.data.RemoteSaveAdaptor();
+
+    customAdaptor = ej.base.extend(customAdaptor, {
+        insert(dm, data, tableName) {
+            this.updateType = 'add';
+            console.log(data)
+            console.log(dm)
+            return {
+                url: dm.dataSource.insertUrl || dm.dataSource.crudUrl || dm.dataSource.url,
+                data: $.param({
+                    //Added the anti-forgery token.
+                    __RequestVerificationToken: document.getElementsByName("__RequestVerificationToken")[0].value,
+                    Question: data.Question,
+                    Answer: data.Answer,
+                    Type: data.Type,
+                    table: tableName,
+                    action: 'insert'
+                }),
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+            };
+        },
+        update(dm, keyField, value, tableName) {
+            this.updateType = 'update';
+            return {
+                type: 'POST',
+                url: dm.dataSource.updateUrl || dm.dataSource.crudUrl || dm.dataSource.url,
+                data: $.param({
+                    //Added the anti-forgery token.
+                    __RequestVerificationToken: document.getElementsByName("__RequestVerificationToken")[0].value,
+                    action: 'update',
+                    table: tableName,
+                    Question: value.Question,
+                    Answer: value.Answer,
+                    Type: value.Type,
+                    Id: value.id
+                }),
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8'
+            };
+        },
+    });
+
+    function load(args) {
+        this.dataSource.adaptor = customAdaptor;
+    }
+</script>
+<link rel="stylesheet" href="~/css/material.css" />
+

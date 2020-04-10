@@ -1,0 +1,40 @@
+﻿@model CodingCards.Models.Card
+
+<div class="album py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header">
+                        <h4 class="my-0 font-weight-normal">@Html.Raw(@Model.Question)</h4>
+                        <medium class="my-0 font-weight-normal">Question Type: @Model.Type</medium>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <div class="row">
+                                <div class="col-1">
+
+                                </div>
+                                <div class="col-10">
+                                    @Html.Raw(Model.Answer)
+                                </div>
+                                <div class="col-1">
+
+                                </div>
+                            </div>
+
+                        </p>
+
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><a class="btn btn-outline-primary">Edit</a></li>
+                            <li class="list-group-item"><a class="btn btn-outline-danger">Delete</a></li>
+                            <li class="list-group-item"><a class="btn btn-outline-light">Back To List</a></li>
+                            <li class="list-group-item"><a class="btn btn-outline-light">Get Another</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,13 @@
+﻿
+footer {
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: white;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+footer p {
+    margin-bottom: .25rem;
+}

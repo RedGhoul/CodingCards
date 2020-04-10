@@ -1,0 +1,45 @@
+﻿@model CodingCards.Models.Card
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9 col-md-7 col-lg-8 mx-auto">
+            <div class="card card-signin my-5 w-200">
+                <div class="card-body">
+                    <h5 class="card-title text-center">Create your card</h5>
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                            <input asp-for="Name" hidden></input>
+
+                        <div class="form-group">
+                            <label asp-for="Question" class="control-label"></label>
+                            <textarea rows="4" cols="50" asp-for="Question" class="form-control"></textarea>
+                            <span asp-validation-for="Question" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Answer" class="control-label"></label>
+                            <textarea rows="4" cols="50" asp-for="Answer" class="form-control"></textarea>
+                            <span asp-validation-for="Answer" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="Type" class="control-label"></label>
+                            <select asp-for="Type"
+                                    asp-items="Html.GetEnumSelectList<CardType>()">
+                                <option selected="selected" value="">Please select</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="Create" class="btn btn-primary" />
+                        </div>
+                    </form>
+                </div>
+              
+            </div>
+            
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
