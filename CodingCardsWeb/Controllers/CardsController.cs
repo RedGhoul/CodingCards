@@ -15,7 +15,6 @@ using CodingCards.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Syncfusion.EJ2.Grids;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 
