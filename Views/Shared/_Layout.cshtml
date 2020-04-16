@@ -20,10 +20,25 @@
         <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
             <h5 class="my-0 mr-md-auto font-weight-normal"><a asp-controller="Home" asp-action="Index">Coding Interview Cards</a></h5>
             <nav class="my-2 my-md-0 mr-md-3">
-                <a class="p-2 text-dark" asp-controller="Cards" asp-action="UsersCards">Your Cards</a>
                 <a class="p-2 text-dark" asp-controller="Cards" asp-action="GetRandomCard">Random Card</a>
-                <a class="p-2 text-dark" asp-controller="Cards" asp-action="Create">Create</a>
-                <a class="p-2 text-dark" asp-controller="Cards" asp-action="Index">All Cards</a>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        View Card
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" asp-controller="Cards" asp-action="Index">All Cards</a>
+                        <a class="dropdown-item" asp-controller="Cards" asp-action="UsersCards">Your Cards</a>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Create Card
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" asp-controller="Cards" asp-action="CreateTextCard">Create Text Card</a>
+                        <a class="dropdown-item" asp-controller="Cards" asp-action="CreateCodeCard">Create Code Card</a>
+                    </div>
+                </div>
             </nav>
             <partial name="_LoginPartial" />
         </div>

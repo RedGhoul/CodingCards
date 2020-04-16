@@ -8,6 +8,7 @@ namespace CodingCards.Models
     public enum CardType
     {
         Generic,
+        Code,
         LongAnswer,
         SysDesign,
         OopDesign

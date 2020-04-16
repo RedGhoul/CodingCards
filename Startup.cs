@@ -1,5 +1,4 @@
 using System;
-using Syncfusion.Licensing;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -83,6 +82,10 @@ namespace CodingCards
             services.ConfigureApplicationCookie(options => options.LoginPath = "/Identity/Account/Login");
             services.AddSession();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            // Disable for Prod
+            services.AddRazorPages().AddRazorRuntimeCompilation();
+            
             services.AddScoped<UserManager<ApplicationUser>>();
             services.AddScoped<RoleManager<IdentityRole>>();
             services.AddScoped<ICardRepository, CardRepository>();

@@ -95,18 +95,50 @@ namespace CodingCards.Controllers
         }
 
         // GET: Cards/Create
-        public IActionResult Create()
+        public IActionResult CreateTextCard()
         {
-            return View();
+            CardCreateViewModel model = new CardCreateViewModel();
+            model.Card_Type = Enum.GetValues(typeof(CardType)).Cast<CardType>().Select(v => new SelectListItem
+            {
+                Text = v.ToString(),
+                Value = ((int)v).ToString()
+            }).ToList();
+            return View(model);
+        }
+
+
+        // GET: Cards/Create
+        public IActionResult CreateCodeCard()
+        {
+            CardCreateViewModel model = new CardCreateViewModel();
+            model.Card_Type = Enum.GetValues(typeof(CardType)).Cast<CardType>().Select(v => new SelectListItem
+            {
+                Text = v.ToString(),
+                Value = ((int)v).ToString()
+            }).ToList();
+            return View(model);
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Card card)
+        public async Task<IActionResult> CreateTextCard(Card card)
         {
             if (ModelState.IsValid)
             {
+                await _cardRepository.SaveCard(card, HttpContext.User);
+                return RedirectToAction(nameof(Index));
+            }
+            return View(card);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateCodeCard(Card card)
+        {
+            if (ModelState.IsValid)
+            {
+                card.Type = CardType.Code;
                 await _cardRepository.SaveCard(card, HttpContext.User);
                 return RedirectToAction(nameof(Index));
             }

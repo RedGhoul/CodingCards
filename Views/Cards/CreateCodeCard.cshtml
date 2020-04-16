@@ -1,0 +1,120 @@
+﻿@model CodingCards.Models.CardCreateViewModel
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9 col-md-7 col-lg-8 mx-auto">
+            <div class="card card-signin my-5 w-200">
+                <div class="card-body">
+                    <h5 class="card-title text-center">Create your code card</h5>
+                    <form asp-action="CreateCodeCard">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label for="name">Code Card Name</label>
+                            <input class="form-control"
+                                   type="text"
+                                   name="Name"
+                                   placeholder="Enter Card Name" />
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control" asp-for="Type" asp-items="@Model.Card_Type"></select>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Question" class="control-label"></label>
+                            <textarea rows="4" cols="50" asp-for="Question" class="form-control"></textarea>
+                            <span asp-validation-for="Question" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="name">Language</label>
+                            <select class="form-control selectpicker"
+                                    name="LangName"
+                                    id="LangName"
+                                    onchange="changeMode()">
+                                <option value="c" id="c" selected>C</option>
+                                <option value="sql" id="sql">SQL</option>
+                                <option value="python3" id="python3">Python3</option>
+                                <option value="java" id="java">Java</option>
+                                <option value="csharp" id="csharp">C#</option>
+                                <option value="html" id="html">HTML</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="body">Code</label>
+                            <div id="editor"></div>
+                            <textarea class="form-control"
+                                      type="text"
+                                      name="Answer"
+                                      placeholder="body"
+                                      id="body_id"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-lg btn-primary btn-block">Create</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<style>
+    #editor {
+        height: 500px;
+        width: 100%;
+    }
+    footer {
+        position: inherit;
+    }
+</style>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.7/ace.js"
+            integrity="sha256-C7DTYRJLG+B/VEzHGeoPMw699nsTQYPAXHKXZb+q04E="
+            crossorigin="anonymous"></script>
+    <script>
+        $('footer')[0].style.position = "inherit";
+        var editor = ace.edit("editor");
+        var textarea = document.getElementById("body_id");
+        textarea.style.visibility = "hidden";
+        editor.setTheme("ace/theme/dracula");
+        editor.session.setMode("ace/mode/sql");
+        editor.setOptions({
+            fontSize: "16px"
+        });
+        editor.getSession().setValue(textarea.value);
+        editor.getSession().on("change", function () {
+            textarea.value = editor.getSession().getValue();
+        });
+        editor.clearSelection();
+        function changeMode() {
+            var x = document.getElementById("mode");
+            var modeValue = x.options[x.selectedIndex].value;
+            switch (modeValue) {
+                case "c":
+                    editor.session.setMode("ace/mode/c_cpp");
+                    break;
+                case "python3":
+                    editor.session.setMode("ace/mode/python");
+                    break;
+                case "sql":
+                    editor.session.setMode("ace/mode/sql");
+                    break;
+                case "java":
+                    editor.session.setMode("ace/mode/java");
+                    break;
+                case "html":
+                    editor.session.setMode("ace/mode/html");
+                    break;
+                case "csharp":
+                    editor.session.setMode("ace/mode/csharp");
+                    break;
+                default:
+                    editor.session.setMode("ace/mode/sql");
+                    break;
+            }
+        }
+    </script>
+
+
+}
