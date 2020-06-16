@@ -9,17 +9,35 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Sinks.Elasticsearch;
 
 namespace CodingCards
 {
-    public class Program
+    public partial class Program
     {
         public static void Main(string[] args)
         {
+            IConfiguration configuration = null;
+            try
+            {
+                configuration = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json", optional: false)
+                    .Build();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .WriteTo.MySink()
+                 .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri($"{Secrets.GetConnectionString(configuration, "Log_ElasticIndexBaseUrl")}"))
+                 {
+                     AutoRegisterTemplate = true,
+                     ModifyConnectionSettings = x => x.BasicAuthentication(Secrets.GetAppSettingsValue(configuration, "elastic_name"), Secrets.GetAppSettingsValue(configuration, "elastic_pasword")),
+                     AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7,
+                     IndexFormat = $"{Secrets.GetAppSettingsValue(configuration, "AppName")}" + "-{0:yyyy.MM}"
+                 })
                 .CreateLogger();
 
             try
@@ -35,6 +53,7 @@ namespace CodingCards
             {
                 Log.CloseAndFlush();
             }
+
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

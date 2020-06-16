@@ -46,12 +46,13 @@ namespace CodingCards
             //    option.InstanceName = "master";
             //});
 
-            services.AddDbContextPool<ApplicationDbContext>(options => options
+            services.AddDbContext<ApplicationDbContext>(options => options
                 // replace with your connection string
                 .UseMySql(Secrets.GetConnectionString(Configuration, "CardsDigitalOceanPROD_RDMS"), mySqlOptions => mySqlOptions
                     // replace with your Server Version and Type
-                    .ServerVersion(new ServerVersion(new Version(5, 7, 29), ServerType.MySql))
+                    .ServerVersion(new ServerVersion(new Version(8,0,19), ServerType.MySql))
                     .CommandTimeout(300)
+                    .EnableRetryOnFailure(6)
                 ));
 
 

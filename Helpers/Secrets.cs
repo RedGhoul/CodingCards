@@ -10,21 +10,41 @@ namespace CodingCards.Helpers
     {
         public static string GetAppSettingsValue(IConfiguration Configuration, string name)
         {
-            var value = Configuration.GetSection("AppSettings")[name];
-            if (!String.IsNullOrEmpty(value))
+            try
             {
-                return value;
+                var value = Configuration.GetSection("AppSettings")[name];
+                if (!string.IsNullOrEmpty(value))
+                {
+                    return value;
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Console.WriteLine("Could not find it in the Configuration");
+                Console.WriteLine("using the following value instead: " + Environment.GetEnvironmentVariable(name));
+            }
+
             return Environment.GetEnvironmentVariable(name);
         }
 
         public static string GetConnectionString(IConfiguration Configuration, string name)
         {
-            var value = Configuration.GetConnectionString(name);
-            if (!String.IsNullOrEmpty(value))
+            try
             {
-                return value;
+                var value = Configuration.GetConnectionString(name);
+                if (!string.IsNullOrEmpty(value))
+                {
+                    return value;
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Console.WriteLine("Could not find it in the Configuration");
+                Console.WriteLine("using the following value instead: " + Environment.GetEnvironmentVariable(name));
+            }
+
             return Environment.GetEnvironmentVariable(name);
         }
     }
