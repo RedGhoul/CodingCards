@@ -20,7 +20,7 @@ using Newtonsoft.Json;
 
 namespace CodingCards.Controllers
 {
-    [Authorize(Roles = "Admin")]
+
     public class CardsController : Controller
     {
         private readonly ICardRepository _cardRepository;
@@ -144,7 +144,7 @@ namespace CodingCards.Controllers
             }
             return View(card);
         }
-
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             var card = await _cardRepository.GetCardAsync(id);
@@ -159,6 +159,7 @@ namespace CodingCards.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("id,Name,Question,Answer")] Card card)
         {
             if (id != card.id)
@@ -182,6 +183,7 @@ namespace CodingCards.Controllers
         }
 
         // GET: Cards/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -202,6 +204,7 @@ namespace CodingCards.Controllers
         // POST: Cards/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _cardRepository.DeleteConfirmedAsync(id);
@@ -210,6 +213,7 @@ namespace CodingCards.Controllers
 
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> UsersCards()
         {
             var userCards = await _cardRepository.GetUserCards(HttpContext.User);
