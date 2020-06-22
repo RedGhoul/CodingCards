@@ -58,22 +58,5 @@ namespace CodingCards.Services
             return (List<CardDTO>)Cards;
         }
 
-        public async Task<List<CardDTO>> QueryJobPosting(int fromNumber, string keywords, int size)
-        {
-            var searchResponse = await elasticClient.SearchAsync<CardDTO>(s => s
-                .From(fromNumber)
-                .Size(size)
-                .Query(q => q
-                     .Match(m => m
-                        .Field(f => f.Question)
-                        .Field(f => f.Name)
-                        .Query(keywords)
-                     )
-                ));
-
-            var Cards = searchResponse.Documents;
-
-            return (List<CardDTO>)Cards;
-        }
     }
 }
