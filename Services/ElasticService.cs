@@ -8,6 +8,7 @@ using AutoMapper;
 using CodingCards.Helpers;
 using CodingCards.Models;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Nest;
 using Newtonsoft.Json;
 
@@ -17,8 +18,8 @@ namespace CodingCards.Services
     {
         public string baseUrl;
         private static ElasticClient elasticClient;
-
-        public ElasticService(IConfiguration configuration)
+        private ILogger<ElasticService> _logger;
+        public ElasticService(IConfiguration configuration, ILogger<ElasticService> logger)
         {
             baseUrl = Secrets.GetConnectionString(configuration, "App_ElasticIndexBaseUrl");
             var settings = new ConnectionSettings(new Uri(baseUrl))
@@ -28,6 +29,7 @@ namespace CodingCards.Services
                     Secrets.GetAppSettingsValue(configuration, "ELASTIC_PASSWORD_Search"))
                 .RequestTimeout(TimeSpan.FromMinutes(2));
             elasticClient = new ElasticClient(settings);
+            _logger = logger;
         }
         public async Task<bool> AddCardToES(CardDTO cardDTO)
         {
@@ -37,7 +39,8 @@ namespace CodingCards.Services
         }
 
         public async Task<List<CardDTO>> QueryJobPosting(int fromNumber, string keywords, int size, CardType? cardType)
-        {//
+        {
+            _logger.LogInformation($"fromNumber: {fromNumber}  keywords: {keywords}");
             var searchResponse = await elasticClient.SearchAsync<CardDTO>(s => s
                 .From(fromNumber)
                 .Size(size)
@@ -52,7 +55,7 @@ namespace CodingCards.Services
                         .Query(keywords)
                      )
                 ));
-
+            _logger.LogInformation(searchResponse.DebugInformation);
             var Cards = searchResponse.Documents;
             
             return (List<CardDTO>)Cards;
