@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using CodingCards.Data;
 using CodingCards.Models;
 using CodingCards.Services;
@@ -20,14 +21,17 @@ namespace CodingCards.Controllers
         private readonly ICardRepository _cardRepository;
         private UserManager<ApplicationUser> _userManager;
         private readonly ElasticService _es;
-
-        public DataAdminController(ICardRepository context, 
+        private readonly IMapper _mapper;
+        public DataAdminController(
+            IMapper mapper,
+            ICardRepository context, 
             UserManager<ApplicationUser> userManager,
             ElasticService es)
         {
             _cardRepository = context;
             _userManager = userManager;
             _es = es;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> IndexIntoElastic()
@@ -36,7 +40,8 @@ namespace CodingCards.Controllers
 
             foreach (var card in items)
             {
-                await _es.AddCardToES(card);
+                var CardDTO = _mapper.Map<CardDTO>(card);
+                await _es.AddCardToES(CardDTO);
             }
            
 

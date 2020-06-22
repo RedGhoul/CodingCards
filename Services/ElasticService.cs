@@ -4,181 +4,76 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using CodingCards.Helpers;
 using CodingCards.Models;
 using Microsoft.Extensions.Configuration;
+using Nest;
 using Newtonsoft.Json;
 
 namespace CodingCards.Services
 {
     public class ElasticService
     {
-        public string baseUrl = "";
+        public string baseUrl;
+        private static ElasticClient elasticClient;
+
         public ElasticService(IConfiguration configuration)
         {
-            baseUrl = Secrets.GetConnectionString(configuration,"CardsDigitalOceanPROD_ES") + "/codinginterviewcards/";
+            baseUrl = Secrets.GetConnectionString(configuration, "App_ElasticIndexBaseUrl");
+            var settings = new ConnectionSettings(new Uri(baseUrl))
+                .DefaultIndex("codinginterviewcards")
+                .BasicAuthentication(
+                    Secrets.GetAppSettingsValue(configuration, "ELASTIC_USERNAME_Search"),
+                    Secrets.GetAppSettingsValue(configuration, "ELASTIC_PASSWORD_Search"))
+                .RequestTimeout(TimeSpan.FromMinutes(2));
+            elasticClient = new ElasticClient(settings);
         }
-        public async Task<bool> AddCardToES(Card card)
+        public async Task<bool> AddCardToES(CardDTO cardDTO)
         {
-            var json = JsonConvert.SerializeObject(card, Formatting.None,
-                new JsonSerializerSettings()
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                });
-            var data = new StringContent(json, Encoding.UTF8, "application/json");
+            var things = await elasticClient.IndexDocumentAsync(cardDTO);
 
-            var client = new HttpClient();
-
-            var response = await client.PutAsync(baseUrl + "_doc/" + card.id, data);
-
-            return response.IsSuccessStatusCode;
-
+            return things.IsValid;
         }
-        public async Task<List<Card>> QueryJobPosting(int fromNumber, string keywords, int size, CardType? cardType)
+
+        public async Task<List<CardDTO>> QueryJobPosting(int fromNumber, string keywords, int size, CardType? cardType)
         {
-            var client = new HttpClient();
-            string result = "";
-            HttpResponseMessage response = null;
-            if (string.IsNullOrEmpty(keywords.Replace(" ", "")))
-            {
-                string finalQueryString = baseUrl + "_search?" + "q=Type:"+ (int)cardType + "&from=" + fromNumber + "&size=" + size;
-                response = await client.GetAsync(finalQueryString);
+            var searchResponse = await elasticClient.SearchAsync<CardDTO>(s => s
+                .From(fromNumber)
+                .Size(size)
+                .Query(q => q
+                     .Match(m => m
+                        .Field(f => f.Name)
+                        .Query(keywords)
+                     )
+                ).Query(q => q
+                     .Match(m => m
+                        .Field(f => f.Question)
+                        .Query(keywords)
+                     )
+                ));
 
-                result = response.Content.ReadAsStringAsync().Result;
-            }
-            else
-            {
-                RootDSLObject dsl = new RootDSLObject();
-                try
-                {
-
-                    dsl.from = fromNumber;
-                    dsl.size = size;
-                    dsl.query = new Query();
-                    dsl.query.@bool = new Bool();
-                    dsl.query.@bool.must = new List<Must>();
-                    dsl.query.@bool.filter = new List<Filter>();
-                    dsl.query.@bool.must.Add(new Must
-                    {
-                        match = new
-                        {
-                            Answer = keywords
-                        }
-                    });
-
-                    dsl.query.@bool.must.Add(new Must
-                    {
-                        match = new
-                        {
-                            Question = keywords
-                        }
-                    });
-                    dsl.query.@bool.filter.Add(new Filter
-                    {
-                        term = new
-                        {
-                            Type = cardType
-                        }
-                    });
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                var json = JsonConvert.SerializeObject(dsl);
-                var data = new StringContent(json, Encoding.UTF8, "application/json");
-                response = await client.PostAsync(baseUrl + "_search", data);
-
-                result = response.Content.ReadAsStringAsync().Result;
-            }
-
- 
-           
-
-            try
-            {
-                RootResponseObject list = JsonConvert
-                    .DeserializeObject<RootResponseObject>(result);
-                List<Card> listsCards = new List<Card>();
-                foreach (var item in list.hits.hits)
-                {
-
-                    listsCards.Add(item._source);
-                }
-                return listsCards;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.InnerException);
-                return new List<Card>();
-            }
-
-
+            var Cards = searchResponse.Documents;
+            
+            return (List<CardDTO>)Cards;
         }
 
-        public async Task<List<Card>> QueryJobPosting(int fromNumber, string keywords, int size)
+        public async Task<List<CardDTO>> QueryJobPosting(int fromNumber, string keywords, int size)
         {
-            var client = new HttpClient();
+            var searchResponse = await elasticClient.SearchAsync<CardDTO>(s => s
+                .From(fromNumber)
+                .Size(size)
+                .Query(q => q
+                     .Match(m => m
+                        .Field(f => f.Question)
+                        .Field(f => f.Name)
+                        .Query(keywords)
+                     )
+                ));
 
-            HttpResponseMessage response = null;
-            RootDSLObject dsl = new RootDSLObject();
-            try
-            {
+            var Cards = searchResponse.Documents;
 
-                dsl.from = fromNumber;
-                dsl.size = size;
-                dsl.query = new Query();
-                dsl.query.@bool = new Bool();
-                dsl.query.@bool.must = new List<Must>();
-                dsl.query.@bool.filter = new List<Filter>();
-                dsl.query.@bool.must.Add(new Must
-                {
-                    match = new
-                    {
-                        Answer = keywords
-                    }
-                });
-
-                dsl.query.@bool.must.Add(new Must
-                {
-                    match = new
-                    {
-                        Question = keywords
-                    }
-                });
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
-            var json = JsonConvert.SerializeObject(dsl);
-            var data = new StringContent(json, Encoding.UTF8, "application/json");
-            response = await client.PostAsync(baseUrl + "_search", data);
-
-            var result = response.Content.ReadAsStringAsync().Result;
-
-            try
-            {
-                RootResponseObject list = JsonConvert
-                    .DeserializeObject<RootResponseObject>(result);
-                List<Card> listsCards = new List<Card>();
-                foreach (var item in list.hits.hits)
-                {
-
-                    listsCards.Add(item._source);
-                }
-                return listsCards;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.InnerException);
-                return new List<Card>();
-            }
-
-
+            return (List<CardDTO>)Cards;
         }
-
     }
 }

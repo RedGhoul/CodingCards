@@ -31,10 +31,14 @@ namespace CodingCards
 
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
-                 .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri($"{Secrets.GetConnectionString(configuration, "Log_ElasticIndexBaseUrl")}"))
+                 .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(
+                     new Uri($"{Secrets.GetConnectionString(configuration, "Log_ElasticIndexBaseUrl")}"))
                  {
                      AutoRegisterTemplate = true,
-                     ModifyConnectionSettings = x => x.BasicAuthentication(Secrets.GetAppSettingsValue(configuration, "elastic_name"), Secrets.GetAppSettingsValue(configuration, "elastic_pasword")),
+                     ModifyConnectionSettings = x => 
+                              x.BasicAuthentication(
+                                  Secrets.GetAppSettingsValue(configuration, "Elastic_Logging_UserName"), 
+                                  Secrets.GetAppSettingsValue(configuration, "Elastic_Logging_Password")),
                      AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7,
                      IndexFormat = $"{Secrets.GetAppSettingsValue(configuration, "AppName")}" + "-{0:yyyy.MM}"
                  })

@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using CodingCards.Services;
 using Microsoft.AspNetCore.Identity;
+using AutoMapper;
 
 namespace CodingCards.Data
 {
@@ -18,8 +19,11 @@ namespace CodingCards.Data
         private readonly IDistributedCache _cache;
         private readonly ElasticService _es;
         private UserManager<ApplicationUser> _userManager;
+        private readonly IMapper _mapper;
 
-        public CardRepository(ApplicationDbContext ctx, 
+        public CardRepository(
+            IMapper mapper,
+            ApplicationDbContext ctx, 
             IDistributedCache cache, 
             ElasticService es,
             UserManager<ApplicationUser> userManager)
@@ -28,6 +32,7 @@ namespace CodingCards.Data
             _cache = cache;
             _es = es;
             _userManager = userManager;
+            _mapper = mapper;
         }
         public async Task<int> GetTotalCards()
         {
@@ -100,10 +105,9 @@ namespace CodingCards.Data
 
         public async Task<List<Card>> GetRandomSetOfCardsAsyncEs(int totalAmount)
         {
-
-            var cards = await _es.QueryJobPosting(new Random().Next(1, 50), "", totalAmount);
-           
-            return cards;
+            var CardDTOs = await _es.QueryJobPosting(new Random().Next(1, 50), "", totalAmount,0);
+            var Cards = _mapper.Map<List<Card>>(CardDTOs);
+            return Cards;
         }
 
         public async Task<List<Card>> GetRandomSetOfCardsAsyncDb(int totalAmount)
@@ -142,7 +146,8 @@ namespace CodingCards.Data
         {
             _ctx.Add(card);
             await _ctx.SaveChangesAsync();
-            await _es.AddCardToES(card);
+            var CardDTO = _mapper.Map<CardDTO>(card);
+            await _es.AddCardToES(CardDTO);
             return card;
         }
 
@@ -190,9 +195,9 @@ namespace CodingCards.Data
             {
                 fromNumber = cardIndexVM.Page * 12;
             }
-            var jobsCollection = await _es.QueryJobPosting(fromNumber, cardIndexVM.KeyWords,12,cardIndexVM.CardType);
-
-            return jobsCollection;
+            var cardDTOs = await _es.QueryJobPosting(fromNumber, cardIndexVM.KeyWords,12,cardIndexVM.CardType);
+            var Cards = _mapper.Map<List<Card>>(cardDTOs);
+            return Cards;
         }
 
 
@@ -213,7 +218,8 @@ namespace CodingCards.Data
             card.CardCreator = currentUser;
             _ctx.Add(card);
             await _ctx.SaveChangesAsync();
-            await _es.AddCardToES(card);
+            var CardDTO = _mapper.Map<CardDTO>(card);
+            await _es.AddCardToES(CardDTO);
             return card;
         }
     }

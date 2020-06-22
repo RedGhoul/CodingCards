@@ -18,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using Pomelo.EntityFrameworkCore.MySql.Storage;
+using AutoMapper;
 
 namespace CodingCards
 {
@@ -33,6 +34,7 @@ namespace CodingCards
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAutoMapper(typeof(Startup));
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -40,15 +42,10 @@ namespace CodingCards
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            //services.AddDistributedRedisCache(option =>
-            //{
-            //    option.Configuration = Secrets.getConnectionString(Configuration, "RedisConnection");
-            //    option.InstanceName = "master";
-            //});
 
             services.AddDbContext<ApplicationDbContext>(options => options
                 // replace with your connection string
-                .UseMySql(Secrets.GetConnectionString(Configuration, "CardsDigitalOceanPROD_RDMS"), mySqlOptions => mySqlOptions
+                .UseMySql(Secrets.GetConnectionString(Configuration, "DatabaseConnection"), mySqlOptions => mySqlOptions
                     // replace with your Server Version and Type
                     .ServerVersion(new ServerVersion(new Version(8,0,19), ServerType.MySql))
                     .CommandTimeout(300)
@@ -133,33 +130,31 @@ namespace CodingCards
 
         private async Task CreateUserRoles(IApplicationBuilder app)
         {
-            using (IServiceScope scope = app.ApplicationServices.CreateScope())
+            using IServiceScope scope = app.ApplicationServices.CreateScope();
+            var RoleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var UserManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            var content = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            IdentityResult roleResult;
+
+            //Adding Admin Role
+            var roleCheck = await RoleManager.RoleExistsAsync("Admin");
+            if (!roleCheck)
             {
-                var RoleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                var UserManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                //create the roles and seed them to the database
+                roleResult = await RoleManager.CreateAsync(new IdentityRole("Admin"));
+            }
 
-                var content = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-                IdentityResult roleResult;
-
-                //Adding Admin Role
-                var roleCheck = await RoleManager.RoleExistsAsync("Admin");
-                if (!roleCheck)
+            //Assign Admin role to the main User here we have given our newly registered 
+            //login id for Admin management
+            ApplicationUser user = await UserManager.FindByEmailAsync("avaneesab5@gmail.com");
+            if (user != null)
+            {
+                var currentUserRoles = await UserManager.GetRolesAsync(user);
+                if (!currentUserRoles.Contains("Admin"))
                 {
-                    //create the roles and seed them to the database
-                    roleResult = await RoleManager.CreateAsync(new IdentityRole("Admin"));
-                }
-
-                //Assign Admin role to the main User here we have given our newly registered 
-                //login id for Admin management
-                ApplicationUser user = await UserManager.FindByEmailAsync("avaneesab5@gmail.com");
-                if (user != null)
-                {
-                    var currentUserRoles = await UserManager.GetRolesAsync(user);
-                    if (!currentUserRoles.Contains("Admin"))
-                    {
-                        await UserManager.AddToRoleAsync(user, "Admin");
-                    }
+                    await UserManager.AddToRoleAsync(user, "Admin");
                 }
             }
 
