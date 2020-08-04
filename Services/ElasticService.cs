@@ -40,6 +40,7 @@ namespace CodingCards.Services
 
         public async Task<List<CardDTO>> QueryJobPosting(int fromNumber, string keywords, int size, CardType? cardType)
         {
+            _logger.LogInformation($"TEST");
             _logger.LogInformation($"fromNumber: {fromNumber}  keywords: {keywords}");
             var searchResponse = await elasticClient.SearchAsync<CardDTO>(s => s
                 .From(fromNumber)

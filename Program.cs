@@ -8,6 +8,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Sentry;
 using Serilog;
 using Serilog.Sinks.Elasticsearch;
 
@@ -28,35 +29,38 @@ namespace CodingCards
             {
                 Console.WriteLine(e);
             }
+            using (SentrySdk.Init(Secrets.GetConnectionString(configuration, "Sentry_URL")))
+            {
+                Log.Logger = new LoggerConfiguration()
+               .Enrich.FromLogContext()
+                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(
+                    new Uri($"{Secrets.GetConnectionString(configuration, "Log_ElasticIndexBaseUrl")}"))
+                {
+                    AutoRegisterTemplate = true,
+                    ModifyConnectionSettings = x =>
+                             x.BasicAuthentication(
+                                 Secrets.GetAppSettingsValue(configuration, "Elastic_Logging_UserName"),
+                                 Secrets.GetAppSettingsValue(configuration, "Elastic_Logging_Password")),
+                    AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7,
+                    IndexFormat = $"{Secrets.GetAppSettingsValue(configuration, "AppName")}" + "-{0:yyyy.MM}"
+                })
+               .CreateLogger();
 
-            Log.Logger = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                 .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(
-                     new Uri($"{Secrets.GetConnectionString(configuration, "Log_ElasticIndexBaseUrl")}"))
-                 {
-                     AutoRegisterTemplate = true,
-                     ModifyConnectionSettings = x => 
-                              x.BasicAuthentication(
-                                  Secrets.GetAppSettingsValue(configuration, "Elastic_Logging_UserName"), 
-                                  Secrets.GetAppSettingsValue(configuration, "Elastic_Logging_Password")),
-                     AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7,
-                     IndexFormat = $"{Secrets.GetAppSettingsValue(configuration, "AppName")}" + "-{0:yyyy.MM}"
-                 })
-                .CreateLogger();
-
-            try
-            {
-                Log.Information("Starting up");
-                CreateWebHostBuilder(args).Build().Run();
+                try
+                {
+                    Log.Information("Starting up");
+                    CreateWebHostBuilder(args).Build().Run();
+                }
+                catch (Exception ex)
+                {
+                    Log.Fatal(ex, "Application start-up failed");
+                }
+                finally
+                {
+                    Log.CloseAndFlush();
+                }
             }
-            catch (Exception ex)
-            {
-                Log.Fatal(ex, "Application start-up failed");
-            }
-            finally
-            {
-                Log.CloseAndFlush();
-            }
+           
 
         }
 
