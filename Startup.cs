@@ -35,13 +35,24 @@ namespace CodingCards
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAutoMapper(typeof(Startup));
+
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+            services.AddDistributedMemoryCache();
 
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromSeconds(30);
+                options.Cookie.HttpOnly = true;
+            });
+            //services.AddDistributedRedisCache(option =>
+            //{
+            //    option.Configuration = Secrets.GetConnectionString(Configuration, "RedisConnection");
+            //});
 
             services.AddDbContext<ApplicationDbContext>(options => options
                 // replace with your connection string
@@ -77,17 +88,32 @@ namespace CodingCards
                 options.User.RequireUniqueEmail = true;
                 
             });
-            services.ConfigureApplicationCookie(options => options.LoginPath = "/Identity/Account/Login");
-            services.AddSession();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            // Disable for Prod
+            services.ConfigureApplicationCookie(options =>
+            {
+                // Cookie settings
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                options.LoginPath = "/Identity/Account/Login"; // If the LoginPath is not set here,
+                // ASP.NET Core will default to /Account/Login
+                options.LogoutPath = "/Identity/Account/Logout"; // If the LogoutPath is not set here,
+                // ASP.NET Core will default to /Account/Logout
+                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                options.SlidingExpiration = true;
+            });
+
+            services.AddResponseCaching();
+            services.AddSession();
+            services.AddMvc();
+
             services.AddRazorPages().AddRazorRuntimeCompilation();
-            
+            services.AddAuthorization();
+
             services.AddScoped<UserManager<ApplicationUser>>();
             services.AddScoped<RoleManager<IdentityRole>>();
             services.AddScoped<ICardRepository, CardRepository>();
             services.AddScoped<ElasticService, ElasticService>();
+
             services.AddResponseCompression();
         }
 
@@ -104,17 +130,16 @@ namespace CodingCards
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
-
+            
+            
             app.UseHttpsRedirection();
+            
             app.UseStaticFiles();
-            app.UseCookiePolicy();
 
+            app.UseSession();
             app.UseRouting();
-
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseSession();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

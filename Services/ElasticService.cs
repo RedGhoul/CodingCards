@@ -33,14 +33,13 @@ namespace CodingCards.Services
         }
         public async Task<bool> AddCardToES(CardDTO cardDTO)
         {
-            var things = await elasticClient.IndexDocumentAsync(cardDTO);
+            var returnedResponse = await elasticClient.IndexDocumentAsync(cardDTO);
 
-            return things.IsValid;
+            return returnedResponse.IsValid;
         }
 
         public async Task<List<CardDTO>> QueryJobPosting(int fromNumber, string keywords, int size, CardType? cardType)
         {
-            _logger.LogInformation($"TEST");
             _logger.LogInformation($"fromNumber: {fromNumber}  keywords: {keywords}");
             var searchResponse = await elasticClient.SearchAsync<CardDTO>(s => s
                 .From(fromNumber)

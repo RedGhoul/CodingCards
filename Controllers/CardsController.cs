@@ -17,23 +17,26 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace CodingCards.Controllers
 {
-
+    //[AllowAnonymous]
+    [Authorize]
     public class CardsController : Controller
     {
         private readonly ICardRepository _cardRepository;
         private readonly string SearchVMCacheKey = "SearchVMCacheKey";
-
-        public CardsController(ICardRepository context)
+        private readonly IDistributedCache _cache;
+        public CardsController(ICardRepository context, IDistributedCache cache)
         {
             _cardRepository = context;
+            _cache = cache;
         }
 
 
-        [AllowAnonymous]
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var value = HttpContext.Session.GetString(SearchVMCacheKey);
@@ -55,8 +58,8 @@ namespace CodingCards.Controllers
 
 
 
-        [AllowAnonymous]
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult IndexPost(CardIndexViewModel homeIndexVm)
         {
             homeIndexVm = CardHelpers.SetDefaultFindModel(homeIndexVm);
@@ -69,20 +72,18 @@ namespace CodingCards.Controllers
             return RedirectToAction("Index");
         }
 
-        [AllowAnonymous]
         public async Task<IActionResult> ViewCard(int id)
         {
             var result = await _cardRepository.GetCardAsync(id);
             return View(result);
         }
 
-        [AllowAnonymous]
         public async Task<IActionResult> GetRandomCard()
         {
             var result = await _cardRepository.GetRandomCardAsync();
             return View("ViewCard",result);
         }
-        [AllowAnonymous]
+
         public async Task<IActionResult> GetAnswer(int? id)
         {
             var card = await _cardRepository.GetCardAsync(id);
@@ -144,6 +145,7 @@ namespace CodingCards.Controllers
             }
             return View(card);
         }
+
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -213,7 +215,6 @@ namespace CodingCards.Controllers
 
 
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> UsersCards()
         {
             var userCards = await _cardRepository.GetUserCards(HttpContext.User);
