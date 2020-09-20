@@ -48,9 +48,6 @@
 
 
   <ItemGroup>
-    <Content Update="wwwroot\css\auth.css">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Update="wwwroot\css\site.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

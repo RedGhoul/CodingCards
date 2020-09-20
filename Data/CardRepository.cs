@@ -112,11 +112,10 @@ namespace CodingCards.Data
 
         public async Task<List<Card>> GetRandomSetOfCardsAsyncDb(int totalAmount)
         {
-            var cards = await _ctx.Cards.Skip(new Random().Next(1, 50)).Take(totalAmount).ToListAsync();
+            var cards = await _ctx.Cards.Skip(new Random().Next(1, _ctx.Cards.Count())).Take(totalAmount).ToListAsync();
             foreach (Card card in cards)
             {
                 card.NumberOfViews++;
-                
             }
             await _ctx.SaveChangesAsync();
             return cards;

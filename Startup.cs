@@ -56,7 +56,7 @@ namespace CodingCards
 
             services.AddDbContext<ApplicationDbContext>(options => options
                 // replace with your connection string
-                .UseMySql(Secrets.GetConnectionString(Configuration, "DatabaseConnection"), mySqlOptions => mySqlOptions
+                .UseMySql(Secrets.GetConnectionString(Configuration, "DatabaseConnection_LOCAL"), mySqlOptions => mySqlOptions
                     // replace with your Server Version and Type
                     .ServerVersion(new ServerVersion(new Version(8,0,19), ServerType.MySql))
                     .CommandTimeout(300)

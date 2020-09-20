@@ -217,8 +217,11 @@ namespace CodingCards.Controllers
         [HttpGet]
         public async Task<IActionResult> UsersCards()
         {
-            var userCards = await _cardRepository.GetUserCards(HttpContext.User);
-            return View(userCards);
+            UserCardViewModel vm = new UserCardViewModel
+            {
+                UserCards = await _cardRepository.GetUserCards(HttpContext.User)
+            };
+            return View(vm);
         }
 
 

@@ -1,79 +1,92 @@
-﻿@model IEnumerable<CodingCards.Models.Card>
-
-<div class="containter">
-    <div class="row">
-        <div class="col-1">
-
-        </div>
-        <div class="col-10">
-            <h2>Your Cards</h2>
-            <p>
-                <a asp-action="Create" class="btn btn-warning">Create New</a>
-            </p>
-            <table id="table" style="background: aliceblue;">
-                <thead>
-                    <tr>
-                        <th data-breakpoints="xm">
-                            @Html.DisplayNameFor(model => model.Question)
-                        </th>
-                        <th data-breakpoints="xm">
-                            @Html.DisplayNameFor(model => model.Answer)
-                        </th>
-                        <th data-breakpoints="xm">
-                            @Html.DisplayNameFor(model => model.Type)
-                        </th>
-                        <th data-breakpoints="xm">
-                            @Html.DisplayNameFor(model => model.NumberOfViews)
-                        </th>
-                        <th data-breakpoints="xm">
-                            @Html.DisplayNameFor(model => model.NumberOfViewAnswers)
-                        </th>
-                        <th data-type="html" data-breakpoints="xs sm md"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
+﻿@model UserCardViewModel
+<link href="https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.css" rel="stylesheet">
+<link href="https://unpkg.com/bootstrap-table@1.17.1/dist/bootstrap-table.min.css" rel="stylesheet">
+<h2>Your Cards</h2>
+<p>
+    <a asp-action="Create" class="btn btn-warning">Create New</a>
+</p>
+<table id="table"
+       data-toggle="table"
+       data-height="700"
+       data-pagination="true"
+       class="table">
+    <thead>
+        <tr>
+            <th data-field="Question" data-sortable="true">
+                Question
+            </th>
+            <th data-field="Answer" data-sortable="true">
+                Answer
+            </th>
+            <th data-field="Type" data-sortable="true">
+                Type
+            </th>
+            <th data-field="NumberOfViews" data-sortable="true">
+                # Of Views
+            </th>
+            <th data-field="NumberOfViewAnswers" data-sortable="true">
+                # Of ViewAnswers
+            </th>
+            <th data-field="LangName" data-sortable="true">
+                Lang Name
+            </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.UserCards.Count(); i++)
+        {
+            <tr id="tr-id-@i" class="tr-class-@i" data-title="bootstrap table" data-object='{"key": "value"}'>
+                <td id="td-id-@i" class="td-class-@i" data-title="bootstrap table">
+                    @if (Model.UserCards[i].Question.Length >= 10)
                     {
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Question)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Answer)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Type)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.NumberOfViews)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.NumberOfViewAnswers)
-                            </td>
-                            <td>
-                                <a asp-action="Edit" asp-route-id="@item.id">Edit</a> |
-                                <a asp-action="Delete" asp-route-id="@item.id">Delete</a>
-                            </td>
-                        </tr>
+                        @Model.UserCards[i].Question.Substring(0, 10)
                     }
-                </tbody>
-            </table>
-        </div>
-        <div class="col-1">
+                    else
+                    {
+                        @Model.UserCards[i].Question
+                    }
+                </td>
+                <td>
+                    @if (Model.UserCards[i].Answer.Length >= 10)
+                    {
+                        @Model.UserCards[i].Answer.Substring(0, 10)
+                    }
+                    else
+                    {
+                        @Model.UserCards[i].Answer
+                    }
+                </td>
+                <td>
 
-        </div>
-    </div>
-        
-        
-    
-</div>
+                    @Html.DisplayFor(model => model.UserCards[i].Type)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.UserCards[i].NumberOfViews)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.UserCards[i].NumberOfViewAnswers)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.UserCards[i].LangName)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@Model.UserCards[i].id">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@Model.UserCards[i].id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 
-@section Scripts
-{
-    
+@section Scripts{
+
+    <script src="https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.17.1/dist/bootstrap-table.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.17.1/dist/extensions/resizable/bootstrap-table-resizable.min.js"></script>
     <script>
-        $(document).ready( function () {
-            $('#table').DataTable();
-        } );
+        $(function () {
+            $('#table').bootstrapTable()
+        })
     </script>
 }
