@@ -152,7 +152,7 @@ namespace CodingCards
                 endpoints.MapRazorPages();
             });
 
-            //await CreateUserRoles(app);
+            await CreateUserRoles(app);
         }
         
 
