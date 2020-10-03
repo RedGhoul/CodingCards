@@ -1,10 +1,10 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace CodingCards.Migrations
 {
-    public partial class evrythin : Migration
+    public partial class initDb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -50,26 +50,11 @@ namespace CodingCards.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Cards",
-                columns: table => new
-                {
-                    id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(nullable: true),
-                    Question = table.Column<string>(nullable: true),
-                    Answer = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Cards", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RoleId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -90,7 +75,7 @@ namespace CodingCards.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -110,8 +95,8 @@ namespace CodingCards.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(nullable: false),
+                    ProviderKey = table.Column<string>(nullable: false),
                     ProviderDisplayName = table.Column<string>(nullable: true),
                     UserId = table.Column<string>(nullable: false)
                 },
@@ -155,8 +140,8 @@ namespace CodingCards.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(nullable: false),
-                    LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
-                    Name = table.Column<string>(maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
                     Value = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -168,6 +153,35 @@ namespace CodingCards.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Cards",
+                columns: table => new
+                {
+                    id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(nullable: true),
+                    Question = table.Column<string>(nullable: true),
+                    Answer = table.Column<string>(nullable: true),
+                    Type = table.Column<string>(nullable: false),
+                    NumberOfViews = table.Column<int>(nullable: false),
+                    NumberOfViewAnswers = table.Column<int>(nullable: false),
+                    LangName = table.Column<string>(nullable: true),
+                    CardCreatorId = table.Column<string>(nullable: true),
+                    DateCreated = table.Column<DateTime>(nullable: false),
+                    DateDeleted = table.Column<DateTime>(nullable: false),
+                    DateModified = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cards", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Cards_AspNetUsers_CardCreatorId",
+                        column: x => x.CardCreatorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -206,6 +220,46 @@ namespace CodingCards.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cards_CardCreatorId",
+                table: "Cards",
+                column: "CardCreatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cards_DateCreated",
+                table: "Cards",
+                column: "DateCreated");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cards_DateDeleted",
+                table: "Cards",
+                column: "DateDeleted");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cards_DateModified",
+                table: "Cards",
+                column: "DateModified");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cards_LangName",
+                table: "Cards",
+                column: "LangName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cards_NumberOfViewAnswers",
+                table: "Cards",
+                column: "NumberOfViewAnswers");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cards_NumberOfViews",
+                table: "Cards",
+                column: "NumberOfViews");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cards_Type",
+                table: "Cards",
+                column: "Type");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

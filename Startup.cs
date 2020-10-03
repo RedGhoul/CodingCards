@@ -16,8 +16,6 @@ using CodingCards.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
-using Pomelo.EntityFrameworkCore.MySql.Storage;
 using AutoMapper;
 
 namespace CodingCards
@@ -34,14 +32,26 @@ namespace CodingCards
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            string dbConnectionString = "";
+
+            if (Configuration.GetValue<string>("Enviroment").Equals("Dev"))
+            {
+                dbConnectionString = Configuration.GetConnectionString("DefaultConnection");
+            }
+            else
+            {
+                dbConnectionString = Configuration.GetConnectionString("DefaultConnection_PROD");
+            }
+
             services.AddAutoMapper(typeof(Startup));
 
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
+                options.MinimumSameSitePolicy = SameSiteMode.Lax;
             });
+            
             services.AddDistributedMemoryCache();
 
             services.AddSession(options =>
@@ -49,20 +59,14 @@ namespace CodingCards
                 options.IdleTimeout = TimeSpan.FromSeconds(30);
                 options.Cookie.HttpOnly = true;
             });
-            //services.AddDistributedRedisCache(option =>
-            //{
-            //    option.Configuration = Secrets.GetConnectionString(Configuration, "RedisConnection");
-            //});
 
-            services.AddDbContext<ApplicationDbContext>(options => options
-                // replace with your connection string
-                .UseMySql(Secrets.GetConnectionString(Configuration, "DatabaseConnection"), mySqlOptions => mySqlOptions
-                    // replace with your Server Version and Type
-                    .ServerVersion(new ServerVersion(new Version(8,0,19), ServerType.MySql))
-                    .CommandTimeout(300)
-                    .EnableRetryOnFailure(6)
-                ));
+            services.AddDistributedRedisCache(option =>
+            {
+                option.Configuration = Secrets.GetConnectionString(Configuration, "RedisConnection");
+            });
 
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseNpgsql(dbConnectionString));
 
 
             services.AddIdentity<ApplicationUser, IdentityRole>()

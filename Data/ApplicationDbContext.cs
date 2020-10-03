@@ -15,20 +15,32 @@ namespace CodingCards.Data
         {
 
         }
+        public DbSet<Card> Cards { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<ApplicationUser>()
                 .HasMany(c => c.Cards)
-                .WithOne(e => e.CardCreator);
+                .WithOne(e => e.CardCreator)
+                .HasForeignKey(e => e.CardCreatorId);
 
             modelBuilder.Entity<Card>()
                 .Property(c => c.Type)
                 .HasConversion<string>();
-            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Card>().HasIndex(x => x.LangName);
+            modelBuilder.Entity<Card>().HasIndex(x => x.Type);
+            modelBuilder.Entity<Card>().HasIndex(x => x.NumberOfViewAnswers);
+            modelBuilder.Entity<Card>().HasIndex(x => x.NumberOfViews);
+            modelBuilder.Entity<Card>().HasIndex(x => x.DateCreated);
+            modelBuilder.Entity<Card>().HasIndex(x => x.DateDeleted);
+            modelBuilder.Entity<Card>().HasIndex(x => x.DateModified);
+
         }
 
-        public DbSet<Card> Cards { get; set; }
     }
 
 }

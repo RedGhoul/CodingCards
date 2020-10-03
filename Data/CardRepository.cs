@@ -112,7 +112,8 @@ namespace CodingCards.Data
 
         public async Task<List<Card>> GetRandomSetOfCardsAsyncDb(int totalAmount)
         {
-            var cards = await _ctx.Cards.Skip(new Random().Next(1, _ctx.Cards.Count())).Take(totalAmount).ToListAsync();
+            //var cards = await _ctx.Cards.Skip(new Random().Next(1, _ctx.Cards.Count())).Take(totalAmount).ToListAsync();
+            var cards = await _ctx.Cards.ToListAsync();
             foreach (Card card in cards)
             {
                 card.NumberOfViews++;

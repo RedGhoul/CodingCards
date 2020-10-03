@@ -1,20 +1,55 @@
 ﻿@model Card
+    <style>
+        footer {
+            position: fixed;
+        }
+    </style>
 
-<div class="album py-5 bg-light">
     <div class="container">
-
         <div class="row">
             <div class="col-md-12">
                 <div class="card mb-4 shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title">@Html.Raw(@Model.Question)</h5>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item"><a class="btn btn-sm btn-outline-secondary" asp-action="GetAnswer" asp-route-id="@Model.id">Answer</a></li>
-                                <li class="list-group-item"><a class="btn btn-sm btn-outline-secondary" asp-action="GetRandomCard">Get Another</a></li>
-                                <li class="list-group-item"><a class="btn btn-sm btn-outline-success" asp-action="GetRandomCard">Knew It</a></li>
-                                <li class="list-group-item"><a class="btn btn-sm btn-outline-danger" asp-action="GetRandomCard">Didn't know it</a></li>
-                                </ul>
+                        <hr />
+                        <div class="row">
+                            
+                            <div class="alert alert-success" role="alert" id="AnswerDisplay" style="display: none;">
+                                <p>@Html.Raw(@Model.Answer)</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">
+
+                            </div>
+                            <div class="col-4 text-center">
+                                <a class="btn btn-sm btn-secondary" id="ViewAnswerBtn">View Answer</a>
+                            </div>
+                            <div class="col-4">
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">
+
+                            </div>
+                            <div class="col-4 text-center">
+                                <a class="btn btn-sm btn-danger" asp-action="GetRandomCard">Didn't know it</a>
+                            </div>
+                            <div class="col-4">
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">
+
+                            </div>
+                            <div class="col-4 text-center">
+                                <a class="btn btn-sm btn-primary" asp-action="GetRandomCard">Next Question ></a>
+                            </div>
+                            <div class="col-4">
+
+                            </div>
                         </div>
                     </div>
                     <div class="card-footer text-muted">
@@ -24,10 +59,15 @@
             </div>
         </div>
     </div>
-</div>
 
-<style>
-    footer {
-        position: fixed;
-    }
-</style>
+
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $("#ViewAnswerBtn").click(function () {
+                $("#AnswerDisplay").show();
+            })
+        });
+    </script>
+}
