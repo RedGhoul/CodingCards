@@ -40,6 +40,7 @@ namespace CodingCards
             }
             else
             {
+                throw new Exception("Current Value of PROD CONNE" + Configuration.GetConnectionString("DefaultConnection_PROD"));
                 dbConnectionString = Configuration.GetConnectionString("DefaultConnection_PROD");
             }
 
