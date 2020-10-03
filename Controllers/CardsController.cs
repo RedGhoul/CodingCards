@@ -26,7 +26,6 @@ namespace CodingCards.Controllers
     public class CardsController : Controller
     {
         private readonly ICardRepository _cardRepository;
-        private readonly string SearchVMCacheKey = "SearchVMCacheKey";
         private readonly IDistributedCache _cache;
         private readonly ApplicationDbContext _ctx;
         public CardsController(ApplicationDbContext context,ICardRepository cardRepo, IDistributedCache cache)
@@ -36,26 +35,28 @@ namespace CodingCards.Controllers
             _cache = cache;
         }
 
-
+        [HttpPost]
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(CardIndexViewModel cardIndexViewModel)
         {
-            var value = HttpContext.Session.GetString(SearchVMCacheKey);
-            CardIndexViewModel cardIndexViewModel = string.IsNullOrEmpty(value) ?
-                CardHelpers.SetDefaultFindModel(new CardIndexViewModel()) :
-                JsonConvert.DeserializeObject<CardIndexViewModel>(value);
+            CardIndexViewModel cardIndexvm = cardIndexViewModel;
 
-            CardHelpers.SetupViewBag(cardIndexViewModel, ViewBag);
+            if (cardIndexViewModel.Page == 0)
+            {
+                cardIndexvm = CardHelpers.SetDefaultFindModel(cardIndexvm);
+            }
 
-            var result = await _cardRepository.ConfigureSearchAsync(cardIndexViewModel);
+            CardHelpers.SetupViewBag(cardIndexvm, ViewBag);
+
+            var result = await _cardRepository.ConfigureSearchAsync(cardIndexvm);
             var count = await _cardRepository.GetTotalCards();
 
-            ViewBag.MaxPage = count / cardIndexViewModel.Page;
+            ViewBag.MaxPage = count / cardIndexvm.Page;
 
-            ViewBag.Page = cardIndexViewModel.Page;
-            cardIndexViewModel.Cards = result;
-            return View(cardIndexViewModel);
+            ViewBag.Page = cardIndexvm.Page;
+            cardIndexvm.Cards = result;
+            return View(cardIndexvm);
         }
 
         public async Task<IActionResult> ViewCard(int id)
@@ -201,61 +202,6 @@ namespace CodingCards.Controllers
             return View(vm);
         }
         
-        [HttpGet, ActionName("CSVToDB")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DbToIndex()
-        {
-            await GetDataFromSQLite(_ctx);
-            return RedirectToAction(nameof(Index));
-        }
-
-        private async Task GetDataFromSQLite(ApplicationDbContext _context)
-        {
-            string cs = @"Data Source=C:\Users\Avane\Documents\Repos\PersonalProjects\CodingCards\DBS\collectionSysDesign.anki2";
-
-            using (SQLiteConnection con = new SQLiteConnection(cs))
-            {
-                con.Open();
-
-                //string stm = "SELECT * FROM cards";
-                string stm = "SELECT * FROM notes";
-                using (SQLiteCommand cmd = new SQLiteCommand(stm, con))
-                {
-                    using (SQLiteDataReader rdr = cmd.ExecuteReader())
-                    {
-                        while (rdr.Read())
-                        {
-                            //string Answer = rdr.GetString(3);
-                            //string Question = rdr.GetString(2);
-                            //var thing = _context.Cards.Where(x => x.Answer.Equals(Answer));
-
-                            //if (thing.Count() == 0)
-                            //{
-                            //    await _context.Cards.AddAsync(new Card()
-                            //    {
-                            //        Answer = rdr.GetString(3),
-                            //        Question = rdr.GetString(2)
-                            //    });
-                            //    _context.SaveChanges();
-                            //}
-
-                            string Answer = rdr.GetString(6);
-                            string Question = rdr.GetString(7);
-                            await _context.Cards.AddAsync(new Card()
-                            {
-                                Answer = Answer,
-                                Question = Question,
-                            });
-                            _context.SaveChanges();
-
-
-                        }
-                    }
-                }
-
-                con.Close();
-            }
-        }
-
+       
     }
 }

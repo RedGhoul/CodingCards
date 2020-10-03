@@ -18,8 +18,10 @@ namespace CodingCards.Controllers
         public async Task<IActionResult> Index()
         {
             var cards = await _cardRepository.GetRandomSetOfCardsAsyncDb(9);
-            CardIndexViewModel vm = new CardIndexViewModel();
-            vm.Cards = cards;
+            CardIndexViewModel vm = new CardIndexViewModel
+            {
+                Cards = cards
+            };
             return View(vm);
         }
 

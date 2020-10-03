@@ -13,7 +13,7 @@ namespace CodingCards.Util
             ViewBag.KeyWords = homeIndexVM.KeyWords;
             ViewBag.MaxResults = homeIndexVM.MaxResults;
             ViewBag.TotalJobs = homeIndexVM.MaxResults != 0 ? homeIndexVM.MaxResults : 100;
-            ViewBag.Page = homeIndexVM.Page;
+            ViewBag.Page = homeIndexVM.Page == 0 ? 1 : homeIndexVM.Page;
         }
 
         public static CardIndexViewModel SetDefaultFindModel(CardIndexViewModel CardIndexVM)
@@ -21,10 +21,11 @@ namespace CodingCards.Util
             if (CardIndexVM == null)
             {
                 CardIndexVM = new CardIndexViewModel();
-
             }
 
-            CardIndexVM.KeyWords ??= "";
+            if (string.IsNullOrEmpty(CardIndexVM.KeyWords)){
+                CardIndexVM.KeyWords = "";
+            }
 
             if (CardIndexVM.MaxResults == 0)
             {

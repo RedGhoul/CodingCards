@@ -9,12 +9,11 @@
                     <h1 class="font-weight-bold">Search All Cards</h1>
                     <p>Get Better at Algorithms Fast !</p>
                 </div>
-                @using (Html.BeginForm("IndexPost", "Cards", FormMethod.Post))
+                @using (Html.BeginForm("Index", "Cards", FormMethod.Get))
                 {
-                    @Html.AntiForgeryToken()
                     <div class="row mb-5">
                         <div class="col-6 col-sm-6 col-md-4 col-lg-4 mb-4 mb-lg-0">
-                            <input type="text" name="KeyWords" class="form-control form-control-lg" placeholder="Job title, keywords...">
+                            <input type="text" name="KeyWords" class="form-control form-control-lg" placeholder="Keywords..." value="@ViewBag.KeyWords">
                         </div>
                         @if (ViewBag.Page == null)
                         {
@@ -63,7 +62,7 @@
                             <div class="col-sm-6 col-md-4 col-lg-4 mb-4 mb-lg-0">
                                 @if (ViewBag.Page > 1)
                                 {
-                                    @using (Html.BeginForm("IndexPost", "Cards", FormMethod.Post))
+                                    @using (Html.BeginForm("Index", "Cards", FormMethod.Get))
                                     {
                                         <input type="hidden" name="KeyWords" value="@ViewBag.KeyWords" />
                                         <input type="hidden" name="MaxResults" value="@ViewBag.MaxResults" />
@@ -78,7 +77,7 @@
                             <div class="col-sm-6 col-md-4 col-lg-4 mb-4 mb-lg-0">
                                 @if (ViewBag.Page < ViewBag.MaxPage)
                                 {
-                                    @using (Html.BeginForm("IndexPost", "Cards", FormMethod.Post))
+                                    @using (Html.BeginForm("Index", "Cards", FormMethod.Get))
                                     {
                                         <input type="hidden" name="KeyWords" value="@ViewBag.KeyWords" />
                                         <input type="hidden" name="MaxResults" value="@ViewBag.MaxResults" />
@@ -129,7 +128,7 @@
                             <div class="col-sm-6 col-md-4 col-lg-4 mb-4 mb-lg-0">
                                 @if (ViewBag.Page > 1)
                                 {
-                                    @using (Html.BeginForm("IndexPost", "Cards", FormMethod.Post))
+                                    @using (Html.BeginForm("Index", "Cards", FormMethod.Get))
                                     {
                                         <input type="hidden" name="KeyWords" value="@ViewBag.KeyWords" />
                                         <input type="hidden" name="MaxResults" value="@ViewBag.MaxResults" />
@@ -144,7 +143,7 @@
                             <div class="col-sm-6 col-md-4 col-lg-4 mb-4 mb-lg-0">
                                 @if (ViewBag.Page < ViewBag.MaxPage)
                                 {
-                                    @using (Html.BeginForm("IndexPost", "Cards", FormMethod.Post))
+                                    @using (Html.BeginForm("Index", "Cards", FormMethod.Get))
                                     {
                                         <input type="hidden" name="KeyWords" value="@ViewBag.KeyWords" />
                                         <input type="hidden" name="MaxResults" value="@ViewBag.MaxResults" />
@@ -164,7 +163,7 @@
                     <div class="col-md-2"></div>
                     <div class="col-md-4"><h4 style="text-align:center;">Sorry nothing was found matching that criteria</h4></div>
                     <div class="col-md-4">
-                        @using (Html.BeginForm("IndexPost", "Cards", FormMethod.Post))
+                        @using (Html.BeginForm("Index", "Cards", FormMethod.Get))
                         {
                             <input type="hidden" name="KeyWords" value="@ViewBag.KeyWords" />
                             <input type="hidden" name="FindModel.MaxResults" value="@ViewBag.MaxResults" />
