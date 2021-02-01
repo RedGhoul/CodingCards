@@ -53,7 +53,7 @@ namespace CodingCards
                 options.MinimumSameSitePolicy = SameSiteMode.Lax;
             });
 
-            services.AddDistributedMemoryCache();
+            //services.AddDistributedMemoryCache();
 
             services.AddSession(options =>
             {
