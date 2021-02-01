@@ -37,15 +37,12 @@ namespace CodingCards
 
             if (Configuration.GetValue<string>("Enviroment").Equals("Dev"))
             {
-                dbConnectionString = Configuration.GetConnectionString("DefaultConnection");
+                dbConnectionString = Secrets.GetConnectionString(Configuration, "DefaultConnection");
             }
             else
             {
-                dbConnectionString = Configuration.GetConnectionString("DefaultConnection_PROD");
+                dbConnectionString = Secrets.GetConnectionString(Configuration, "DefaultConnection_PROD");
             }
-            Console.WriteLine("-----------------------------");
-            Console.WriteLine(dbConnectionString);
-            Console.WriteLine("-----------------------------");
            
 
             services.AddDbContext<ApplicationDbContext>(options =>
