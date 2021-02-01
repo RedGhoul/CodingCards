@@ -61,41 +61,41 @@ namespace CodingCards.Controllers
 
         private async Task GetDataFromSQLite(ApplicationDbContext _context)
         {
-            string cs = @"Data Source=C:\Users\Avane\Documents\Repos\PersonalProjects\CodingCards\DBS\collectionSysDesign.anki2";
+            string cs = @"Data Source=C:\Users\Avane\Documents\Repos\PersonalProjects\CodingCards\DBS\cards-jwasham-extreme.db";
 
             using (SQLiteConnection con = new SQLiteConnection(cs))
             {
                 con.Open();
 
-                //string stm = "SELECT * FROM cards";
-                string stm = "SELECT * FROM notes";
+                string stm = "SELECT * FROM cards";
+                //string stm = "SELECT * FROM notes";
                 using (SQLiteCommand cmd = new SQLiteCommand(stm, con))
                 {
                     using (SQLiteDataReader rdr = cmd.ExecuteReader())
                     {
                         while (rdr.Read())
                         {
-                            //string Answer = rdr.GetString(3);
-                            //string Question = rdr.GetString(2);
-                            //var thing = _context.Cards.Where(x => x.Answer.Equals(Answer));
+                            string Answer = rdr.GetString(3);
+                            string Question = rdr.GetString(2);
+                            var thing = _context.Cards.Where(x => x.Answer.Equals(Answer));
 
-                            //if (thing.Count() == 0)
-                            //{
-                            //    await _context.Cards.AddAsync(new Card()
-                            //    {
-                            //        Answer = rdr.GetString(3),
-                            //        Question = rdr.GetString(2)
-                            //    });
-                            //    _context.SaveChanges();
-                            //}
-
-                            string Answer = rdr.GetString(6);
-                            string Question = rdr.GetString(7);
-                            await _context.Cards.AddAsync(new Card()
+                            if (thing.Count() == 0)
                             {
-                                Answer = Answer,
-                                Question = Question,
-                            });
+                                await _context.Cards.AddAsync(new Card()
+                                {
+                                    Answer = rdr.GetString(3),
+                                    Question = rdr.GetString(2)
+                                });
+                                _context.SaveChanges();
+                            }
+
+                            //string Answer = rdr.GetString(6);
+                            //string Question = rdr.GetString(7);
+                            //await _context.Cards.AddAsync(new Card()
+                            //{
+                            //    Answer = Answer,
+                            //    Question = Question,
+                            //});
                             _context.SaveChanges();
 
 

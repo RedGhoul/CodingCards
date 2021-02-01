@@ -112,6 +112,17 @@ namespace CodingCards.Data
 
         public async Task<List<Card>> GetRandomSetOfCardsAsyncDb(int totalAmount)
         {
+            if(_ctx.Cards.Count() == 0)
+            {
+                var cardLists = new List<Card>
+                {
+                    new Card()
+                    {
+                        Name = "Nothing Found"
+                    }
+                };
+                return cardLists;
+            }
             var cards = await _ctx.Cards.Skip(new Random().Next(1, _ctx.Cards.Count())).Take(totalAmount).ToListAsync();
             foreach (Card card in cards)
             {

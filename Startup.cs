@@ -17,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using AutoMapper;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace CodingCards
 {
@@ -51,7 +52,7 @@ namespace CodingCards
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.Lax;
             });
-            
+
             services.AddDistributedMemoryCache();
 
             services.AddSession(options =>
@@ -60,13 +61,19 @@ namespace CodingCards
                 options.Cookie.HttpOnly = true;
             });
 
-            services.AddDistributedRedisCache(option =>
-            {
-                option.Configuration = Secrets.GetConnectionString(Configuration, "RedisConnection");
-            });
+            //services.AddDistributedRedisCache(option =>
+            //{
+            //    option.Configuration = Secrets.GetConnectionString(Configuration, "RedisConnection");
+            //});
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(dbConnectionString));
+                         options.UseMySql(
+                                   dbConnectionString,
+                                   new MySqlServerVersion(new Version(8, 0, 21)),
+                                   mySqlOptions => mySqlOptions
+                                       .CharSetBehavior(CharSetBehavior.NeverAppend))
+                               .EnableSensitiveDataLogging()
+                               .EnableDetailedErrors());
 
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -90,7 +97,7 @@ namespace CodingCards
 
                 // User settings
                 options.User.RequireUniqueEmail = true;
-                
+
             });
 
             services.ConfigureApplicationCookie(options =>
@@ -122,7 +129,7 @@ namespace CodingCards
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseResponseCompression();
             if (env.IsDevelopment())
@@ -134,10 +141,10 @@ namespace CodingCards
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
-            
-            
+
+
             app.UseHttpsRedirection();
-            
+
             app.UseStaticFiles();
 
             app.UseSession();
@@ -152,9 +159,9 @@ namespace CodingCards
                 endpoints.MapRazorPages();
             });
 
-            //await CreateUserRoles(app);
+            await CreateUserRoles(app);
         }
-        
+
 
 
         private async Task CreateUserRoles(IApplicationBuilder app)
@@ -190,5 +197,5 @@ namespace CodingCards
         }
     }
 
-    
+
 }
