@@ -7,8 +7,14 @@
 {
     if (User.IsInRole("Admin"))
     {
-        <li class="nav-item">
-            <a class="btn btn-primary" asp-controller="CardsAdmin" asp-action="Index">Admin Actions</a>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Admin Actions
+            </a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" asp-controller="CardsAdmin" asp-action="Index">View All Cards</a>
+                <a class="dropdown-item" asp-controller="DataAdmin" asp-action="IndexIntoElastic">Index Into Elastic</a>
+            </div>
         </li>
     }
     <li class="nav-item">

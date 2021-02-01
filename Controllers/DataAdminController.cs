@@ -56,7 +56,7 @@ namespace CodingCards.Controllers
         public async Task<IActionResult> DbToIndex()
         {
             await GetDataFromSQLite(_ctx);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Home");
         }
 
         private async Task GetDataFromSQLite(ApplicationDbContext _context)
