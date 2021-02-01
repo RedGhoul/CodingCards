@@ -43,28 +43,10 @@ namespace CodingCards
             {
                 dbConnectionString = Configuration.GetConnectionString("DefaultConnection_PROD");
             }
-
-            services.AddAutoMapper(typeof(Startup));
-
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.Lax;
-            });
-
-            //services.AddDistributedMemoryCache();
-
-            services.AddSession(options =>
-            {
-                options.IdleTimeout = TimeSpan.FromSeconds(30);
-                options.Cookie.HttpOnly = true;
-            });
-
-            //services.AddDistributedRedisCache(option =>
-            //{
-            //    option.Configuration = Secrets.GetConnectionString(Configuration, "RedisConnection");
-            //});
+            Console.WriteLine("-----------------------------");
+            Console.WriteLine(dbConnectionString);
+            Console.WriteLine("-----------------------------");
+           
 
             services.AddDbContext<ApplicationDbContext>(options =>
                          options.UseMySql(
@@ -79,6 +61,21 @@ namespace CodingCards
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            services.AddAutoMapper(typeof(Startup));
+
+            //services.AddDistributedMemoryCache();
+
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromSeconds(30);
+                options.Cookie.HttpOnly = true;
+            });
+
+            //services.AddDistributedRedisCache(option =>
+            //{
+            //    option.Configuration = Secrets.GetConnectionString(Configuration, "RedisConnection");
+            //});
 
             services.Configure<IdentityOptions>(options =>
             {
