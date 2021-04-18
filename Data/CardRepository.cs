@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using CodingCards.Services;
 using Microsoft.AspNetCore.Identity;
 using AutoMapper;
 
@@ -17,7 +16,6 @@ namespace CodingCards.Data
     {
         private readonly ApplicationDbContext _ctx;
         private readonly IDistributedCache _cache;
-        private readonly ElasticService _es;
         private UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
 
@@ -25,12 +23,10 @@ namespace CodingCards.Data
             IMapper mapper,
             ApplicationDbContext ctx, 
             IDistributedCache cache, 
-            ElasticService es,
             UserManager<ApplicationUser> userManager)
         {
             _ctx = ctx;
             _cache = cache;
-            _es = es;
             _userManager = userManager;
             _mapper = mapper;
         }
@@ -105,9 +101,7 @@ namespace CodingCards.Data
 
         public async Task<List<Card>> GetRandomSetOfCardsAsyncEs(int totalAmount)
         {
-            var CardDTOs = await _es.QueryJobPosting(new Random().Next(1, 50), "", totalAmount,0);
-            var Cards = _mapper.Map<List<Card>>(CardDTOs);
-            return Cards;
+            return null;
         }
 
         public async Task<List<Card>> GetRandomSetOfCardsAsyncDb(int totalAmount)
@@ -157,7 +151,6 @@ namespace CodingCards.Data
             _ctx.Add(card);
             await _ctx.SaveChangesAsync();
             var CardDTO = _mapper.Map<CardDTO>(card);
-            await _es.AddCardToES(CardDTO);
             return card;
         }
 
@@ -205,9 +198,7 @@ namespace CodingCards.Data
             {
                 fromNumber = cardIndexVM.Page * 12;
             }
-            var cardDTOs = await _es.QueryJobPosting(fromNumber, cardIndexVM.KeyWords,12,cardIndexVM.CardType);
-            var Cards = _mapper.Map<List<Card>>(cardDTOs);
-            return Cards;
+            return null;
         }
 
 
@@ -229,7 +220,6 @@ namespace CodingCards.Data
             _ctx.Add(card);
             await _ctx.SaveChangesAsync();
             var CardDTO = _mapper.Map<CardDTO>(card);
-            await _es.AddCardToES(CardDTO);
             return card;
         }
     }

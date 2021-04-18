@@ -5,19 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using CodingCards.Data;
-using CodingCards.Helpers;
 using CodingCards.Models;
-using CodingCards.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using AutoMapper;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace CodingCards
 {
@@ -33,26 +27,9 @@ namespace CodingCards
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            string dbConnectionString = "";
-
-            if (Configuration.GetValue<string>("Enviroment").Equals("Dev"))
-            {
-                dbConnectionString = Secrets.GetConnectionString(Configuration, "DefaultConnection");
-            }
-            else
-            {
-                dbConnectionString = Secrets.GetConnectionString(Configuration, "DefaultConnection_PROD");
-            }
-           
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                         options.UseMySql(
-                                   dbConnectionString,
-                                   new MySqlServerVersion(new Version(8, 0, 21)),
-                                   mySqlOptions => mySqlOptions
-                                       .CharSetBehavior(CharSetBehavior.NeverAppend))
-                               .EnableSensitiveDataLogging()
-                               .EnableDetailedErrors());
+              options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -117,7 +94,6 @@ namespace CodingCards
             services.AddScoped<UserManager<ApplicationUser>>();
             services.AddScoped<RoleManager<IdentityRole>>();
             services.AddScoped<ICardRepository, CardRepository>();
-            services.AddScoped<ElasticService, ElasticService>();
 
             services.AddResponseCompression();
         }

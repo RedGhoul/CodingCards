@@ -21,7 +21,6 @@ namespace CodingCards.Data
         {
 
             base.OnModelCreating(modelBuilder);
-
             modelBuilder.Entity<ApplicationUser>()
                 .HasMany(c => c.Cards)
                 .WithOne(e => e.CardCreator)

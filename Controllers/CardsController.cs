@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-//using System.Data.SQLite;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -9,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CodingCards.Data;
-using CodingCards.Helpers;
 using CodingCards.Models;
 using CodingCards.Util;
 using Microsoft.AspNetCore.Authorization;
