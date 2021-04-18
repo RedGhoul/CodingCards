@@ -47,46 +47,6 @@ namespace CodingCards.Data
             return Int32.Parse(TotalCards);
         }
 
-        public async Task<IEnumerable<Card>> GetCardsAsync(int amount)
-        {
-            string cacheKey = "Cards" + amount;
-            string JobsString = await _cache.GetStringAsync(cacheKey);
-            IEnumerable<Card> cards = null;
-            if (string.IsNullOrEmpty(JobsString))
-            {
-                cards = await _ctx.Cards.Take(amount).ToListAsync();
-                var options = new DistributedCacheEntryOptions();
-                options.SetSlidingExpiration(TimeSpan.FromMinutes(30));
-                await _cache.SetStringAsync(cacheKey, JsonConvert.SerializeObject(cards), options);
-            }
-            else
-            {
-                cards = JsonConvert.DeserializeObject<IEnumerable<Card>>(JobsString);
-            }
-
-            return cards;
-        }
-
-        public async Task<IEnumerable<Card>> GetCardsAllAsync()
-        {
-            string cacheKey = "CardsAll";
-            string JobsString = await _cache.GetStringAsync(cacheKey);
-            IEnumerable<Card> cards = null;
-            if (string.IsNullOrEmpty(JobsString))
-            {
-                cards = await _ctx.Cards.ToListAsync();
-                var options = new DistributedCacheEntryOptions();
-                options.SetSlidingExpiration(TimeSpan.FromMinutes(30));
-                await _cache.SetStringAsync(cacheKey, JsonConvert.SerializeObject(cards), options);
-            }
-            else
-            {
-                cards = JsonConvert.DeserializeObject<IEnumerable<Card>>(JobsString);
-            }
-
-            return cards;
-        }
-
         public async Task<Card> GetRandomCardAsync()
         {
             int total = await GetTotalCards();
@@ -97,11 +57,6 @@ namespace CodingCards.Data
           
 
             return result;
-        }
-
-        public async Task<List<Card>> GetRandomSetOfCardsAsyncEs(int totalAmount)
-        {
-            return null;
         }
 
         public async Task<List<Card>> GetRandomSetOfCardsAsyncDb(int totalAmount)
@@ -137,14 +92,6 @@ namespace CodingCards.Data
             card.NumberOfViews++;
             await _ctx.SaveChangesAsync();
 
-            return card;
-        }
-
-        public async Task<Card> SaveCard(Card card)
-        {
-            _ctx.Add(card);
-            await _ctx.SaveChangesAsync();
-            var CardDTO = _mapper.Map<CardDTO>(card);
             return card;
         }
 
@@ -185,18 +132,18 @@ namespace CodingCards.Data
             return _ctx.Cards.Any(e => e.id == id);
         }
 
-        public async Task<List<Card>> ConfigureSearchAsync(CardIndexViewModel cardIndexVM)
+        public List<Card> ConfigureSearch(CardIndexViewModel cardIndexVM)
         {
             var fromNumber = 0;
             if (cardIndexVM.Page > 1)
             {
                 fromNumber = cardIndexVM.Page * 12;
             }
-            return null;
+            return _ctx.Cards.Skip(12 * fromNumber).Take(12).ToList();
         }
 
 
-        public async Task DeleteConfirmedAsync(int? id)
+        public async Task DeleteConfirmed(int? id)
         {
             var card = await GetCardAsync(id);
             if(card != null)

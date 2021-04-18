@@ -47,7 +47,7 @@ namespace CodingCards.Controllers
 
             CardHelpers.SetupViewBag(cardIndexvm, ViewBag);
 
-            var result = await _cardRepository.ConfigureSearchAsync(cardIndexvm);
+            var result = _cardRepository.ConfigureSearch(cardIndexvm);
             var count = await _cardRepository.GetTotalCards();
 
             ViewBag.MaxPage = count / cardIndexvm.Page;
@@ -185,7 +185,7 @@ namespace CodingCards.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _cardRepository.DeleteConfirmedAsync(id);
+            await _cardRepository.DeleteConfirmed(id);
             return RedirectToAction(nameof(Index));
         }
 
