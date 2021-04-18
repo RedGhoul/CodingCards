@@ -29,7 +29,6 @@ namespace CodingCards.Controllers
                 Cards.Add(new AdminCardDTO
                 {
                     id = item.id,
-                    Name = item.Name,
                     Question = item.Question.Length <= 50 ? item.Question : item.Question.Substring(0, 50),
                     Type = item.Type,
                     NumberOfViewAnswers = item.NumberOfViewAnswers,

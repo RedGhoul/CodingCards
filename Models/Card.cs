@@ -14,7 +14,6 @@ namespace CodingCards.Models
         }
 
         public int id { get; set; }
-        public string Name { get; set; }
         public string Question { get; set; }
         public string Answer { get; set; }
         public CardType Type { get; set; }

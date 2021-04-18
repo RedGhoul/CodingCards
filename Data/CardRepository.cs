@@ -108,13 +108,7 @@ namespace CodingCards.Data
         {
             if(_ctx.Cards.Count() == 0)
             {
-                var cardLists = new List<Card>
-                {
-                    new Card()
-                    {
-                        Name = "Nothing Found"
-                    }
-                };
+                var cardLists = new List<Card>();
                 return cardLists;
             }
             var cards = await _ctx.Cards.Skip(new Random().Next(1, _ctx.Cards.Count())).Take(totalAmount).ToListAsync();
